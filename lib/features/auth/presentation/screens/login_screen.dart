@@ -2,11 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../../core/storage/token_storage.dart';
+import '../../data/models/login_request.dart';
+import '../../data/models/login_response.dart';
+import '../../data/services/auth_api_service.dart';
 import '../../../home/presentation/screens/student_home_screen.dart';
 import '../widgets/login_input_field.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({this.authService, this.tokenStorage, super.key});
+
+  final AuthService? authService;
+  final TokenStorage? tokenStorage;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -16,34 +24,76 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  static const String _testPhone = '0123456789';
-  static const String _testPassword = '123456';
+  late final AuthService _authService;
+  late final TokenStorage _tokenStorage;
+  late final bool _ownsAuthService;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ownsAuthService = widget.authService == null;
+    _authService = widget.authService ?? AuthApiService();
+    _tokenStorage = widget.tokenStorage ?? TokenStorage();
+  }
 
   @override
   void dispose() {
+    final authService = _authService;
+    if (_ownsAuthService && authService is AuthApiService) {
+      authService.close();
+    }
     _phoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _handleLogin() {
-    final phone = _phoneController.text.trim();
-    final password = _passwordController.text;
-
-    if (phone == _testPhone && password == _testPassword) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const StudentHomeScreen()),
-      );
+  Future<void> _handleLogin() async {
+    if (_isLoading) {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Sai s\u1ed1 \u0111i\u1ec7n tho\u1ea1i ho\u1eb7c m\u1eadt kh\u1ea9u. T\u00e0i kho\u1ea3n test: 0123456789 / 123456',
-        ),
-      ),
-    );
+    final phone = _phoneController.text.trim();
+    final password = _passwordController.text;
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _isLoading = true;
+    });
+
+    LoginResponse? loginResponse;
+    try {
+      final response = await _authService.login(
+        LoginRequest(phoneNumber: phone, password: password),
+      );
+      await _tokenStorage.saveAccessToken(response.accessToken);
+      loginResponse = response;
+    } on ApiException catch (error) {
+      if (mounted) {
+        _showError(error.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        _showError('Không thể đăng nhập lúc này. Vui lòng thử lại.');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+
+    if (loginResponse != null && mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const StudentHomeScreen()),
+      );
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -89,6 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       phoneController: _phoneController,
                       passwordController: _passwordController,
                       onLogin: _handleLogin,
+                      isLoading: _isLoading,
                     ),
                   ],
                 ),
@@ -167,11 +218,13 @@ class _LoginPanel extends StatefulWidget {
     required this.phoneController,
     required this.passwordController,
     required this.onLogin,
+    required this.isLoading,
   });
 
   final TextEditingController phoneController;
   final TextEditingController passwordController;
   final VoidCallback onLogin;
+  final bool isLoading;
 
   @override
   State<_LoginPanel> createState() => _LoginPanelState();
@@ -258,20 +311,33 @@ class _LoginPanelState extends State<_LoginPanel> {
           SizedBox(
             height: 56,
             child: ElevatedButton(
-              onPressed: widget.onLogin,
+              onPressed: widget.isLoading ? null : widget.onLogin,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryOrange,
                 foregroundColor: Colors.white,
+                disabledBackgroundColor: AppColors.primaryOrange,
+                disabledForegroundColor: Colors.white,
                 elevation: 0,
                 shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                '\u0110\u0103ng nh\u1eadp',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-              ),
+              child: widget.isLoading
+                  ? const SizedBox.square(
+                      dimension: 24,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      '\u0110\u0103ng nh\u1eadp',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
           ),
           const SizedBox(height: 28),

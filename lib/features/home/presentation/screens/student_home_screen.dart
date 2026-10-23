@@ -74,9 +74,9 @@ class _HomeHeader extends StatelessWidget {
               Text.rich(
                 const TextSpan(
                   children: [
-                    TextSpan(text: 'MyF'),
+
                     TextSpan(
-                      text: 'School',
+                      text: 'MyFSchool',
                       style: TextStyle(color: AppColors.deepOrange),
                     ),
                   ],

@@ -1,0 +1,22 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: myfschool-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-myfschool}
+      MYSQL_USER: ${DB_USERNAME:-myfschool}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-myfschool_dev}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_dev_password}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - myfschool_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  myfschool_mysql_data:

@@ -1,10 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:myschoolse1947/core/network/api_client.dart';
+import 'package:myschoolse1947/core/storage/token_storage.dart';
+import 'package:myschoolse1947/features/auth/data/models/login_request.dart';
+import 'package:myschoolse1947/features/auth/data/models/login_response.dart';
+import 'package:myschoolse1947/features/auth/data/services/auth_api_service.dart';
+import 'package:myschoolse1947/features/home/presentation/screens/student_home_screen.dart';
 import 'package:myschoolse1947/main.dart';
 
 void main() {
   testWidgets('Login screen smoke test', (WidgetTester tester) async {
-    await tester.pumpWidget(const MyFSchoolApp());
+    await tester.pumpWidget(
+      MyFSchoolApp(
+        authService: _FakeAuthService.successful(),
+        tokenStorage: _FakeTokenStorage(),
+      ),
+    );
 
     expect(find.text('MyFSchool'), findsOneWidget);
     expect(find.text('S\u1ed1 \u0111i\u1ec7n tho\u1ea1i'), findsOneWidget);
@@ -12,24 +25,94 @@ void main() {
     expect(find.text('\u0110\u0103ng nh\u1eadp'), findsOneWidget);
   });
 
-  testWidgets('Hard-coded student account opens home screen', (
+  testWidgets('Successful API login stores token and opens existing home', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyFSchoolApp());
+    final authService = _FakeAuthService.successful();
+    final tokenStorage = _FakeTokenStorage();
+    await tester.pumpWidget(
+      MyFSchoolApp(authService: authService, tokenStorage: tokenStorage),
+    );
 
-    await tester.enterText(
-      find.widgetWithText(TextField, 'S\u1ed1 \u0111i\u1ec7n tho\u1ea1i'),
-      '0123456789',
-    );
-    await tester.enterText(
-      find.widgetWithText(TextField, 'M\u1eadt kh\u1ea9u'),
-      '123456',
-    );
+    await _enterCredentials(tester, phone: ' 0987654321 ');
     await tester.tap(find.text('\u0110\u0103ng nh\u1eadp'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Nguy\u1ec5n Minh Anh'), findsOneWidget);
+    expect(authService.callCount, 1);
+    expect(authService.lastRequest?.phoneNumber, '0987654321');
+    expect(authService.lastRequest?.password, '123456');
+    expect(tokenStorage.savedToken, 'signed-jwt');
+    expect(find.byType(StudentHomeScreen), findsOneWidget);
     expect(find.text('Trang ch\u1ee7'), findsOneWidget);
+  });
+
+  testWidgets('Backend login error is displayed without navigating', (
+    WidgetTester tester,
+  ) async {
+    final authService = _FakeAuthService(
+      (_) => Future<LoginResponse>.error(
+        const ApiException(message: 'Invalid phone number or password'),
+      ),
+    );
+    final tokenStorage = _FakeTokenStorage();
+    await tester.pumpWidget(
+      MyFSchoolApp(authService: authService, tokenStorage: tokenStorage),
+    );
+
+    await _enterCredentials(tester);
+    await tester.tap(find.text('\u0110\u0103ng nh\u1eadp'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Invalid phone number or password'), findsOneWidget);
+    expect(find.byType(StudentHomeScreen), findsNothing);
+    expect(tokenStorage.savedToken, isNull);
+  });
+
+  testWidgets('Login is disabled while one request is in progress', (
+    WidgetTester tester,
+  ) async {
+    final pendingLogin = Completer<LoginResponse>();
+    final authService = _FakeAuthService((_) => pendingLogin.future);
+    await tester.pumpWidget(
+      MyFSchoolApp(authService: authService, tokenStorage: _FakeTokenStorage()),
+    );
+
+    await _enterCredentials(tester);
+    await tester.tap(find.text('\u0110\u0103ng nh\u1eadp'));
+    await tester.pump();
+
+    expect(authService.callCount, 1);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(button.onPressed, isNull);
+
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pump();
+    expect(authService.callCount, 1);
+
+    pendingLogin.complete(_successResponse);
+    await tester.pumpAndSettle();
+    expect(find.byType(StudentHomeScreen), findsOneWidget);
+  });
+
+  testWidgets('Secure storage failure does not navigate to home', (
+    WidgetTester tester,
+  ) async {
+    final tokenStorage = _FakeTokenStorage(writeError: Exception('keychain'));
+    await tester.pumpWidget(
+      MyFSchoolApp(
+        authService: _FakeAuthService.successful(),
+        tokenStorage: tokenStorage,
+      ),
+    );
+
+    await _enterCredentials(tester);
+    await tester.tap(find.text('\u0110\u0103ng nh\u1eadp'));
+    await tester.pumpAndSettle();
+
+    expect(tokenStorage.saveCallCount, 1);
+    expect(find.byType(StudentHomeScreen), findsNothing);
+    expect(find.text('\u0110\u0103ng nh\u1eadp'), findsOneWidget);
   });
 
   testWidgets('Login screen fits common mobile sizes', (
@@ -50,10 +133,75 @@ void main() {
         ..devicePixelRatio = 1
         ..physicalSize = size;
 
-      await tester.pumpWidget(const MyFSchoolApp());
+      await tester.pumpWidget(
+        MyFSchoolApp(
+          authService: _FakeAuthService.successful(),
+          tokenStorage: _FakeTokenStorage(),
+        ),
+      );
       await tester.pump();
 
       expect(tester.takeException(), isNull);
     }
   });
+}
+
+Future<void> _enterCredentials(
+  WidgetTester tester, {
+  String phone = '0987654321',
+}) async {
+  await tester.enterText(
+    find.widgetWithText(TextField, 'S\u1ed1 \u0111i\u1ec7n tho\u1ea1i'),
+    phone,
+  );
+  await tester.enterText(
+    find.widgetWithText(TextField, 'M\u1eadt kh\u1ea9u'),
+    '123456',
+  );
+}
+
+const LoginResponse _successResponse = LoginResponse(
+  accessToken: 'signed-jwt',
+  tokenType: 'Bearer',
+  expiresIn: 3600,
+  user: AuthenticatedUser(
+    id: 1,
+    phoneNumber: '0987654321',
+    fullName: 'Test Student',
+    role: 'STUDENT',
+  ),
+);
+
+class _FakeAuthService implements AuthService {
+  _FakeAuthService(this._login);
+
+  _FakeAuthService.successful() : _login = ((_) async => _successResponse);
+
+  final Future<LoginResponse> Function(LoginRequest request) _login;
+  int callCount = 0;
+  LoginRequest? lastRequest;
+
+  @override
+  Future<LoginResponse> login(LoginRequest request) {
+    callCount += 1;
+    lastRequest = request;
+    return _login(request);
+  }
+}
+
+class _FakeTokenStorage extends TokenStorage {
+  _FakeTokenStorage({this.writeError});
+
+  final Object? writeError;
+  int saveCallCount = 0;
+  String? savedToken;
+
+  @override
+  Future<void> saveAccessToken(String accessToken) async {
+    saveCallCount += 1;
+    if (writeError != null) {
+      throw writeError!;
+    }
+    savedToken = accessToken;
+  }
 }
