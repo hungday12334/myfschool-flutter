@@ -118,4 +118,110 @@ void main() {
       ),
     );
   });
+
+  test('password reset request posts the email', () async {
+    final httpClient = MockClient((http.Request sentRequest) async {
+      expect(sentRequest.method, 'POST');
+      expect(
+        sentRequest.url,
+        Uri.parse('http://localhost:8080/api/v1/auth/password-reset/request'),
+      );
+      expect(jsonDecode(sentRequest.body), <String, dynamic>{
+        'email': 'student@example.com',
+      });
+
+      return http.Response(
+        jsonEncode(<String, dynamic>{
+          'code': 200,
+          'message': 'Code sent',
+          'data': null,
+        }),
+        200,
+        headers: const <String, String>{'content-type': 'application/json'},
+      );
+    });
+    final service = AuthApiService(
+      apiClient: ApiClient(
+        httpClient: httpClient,
+        baseUri: Uri.parse('http://localhost:8080/'),
+      ),
+    );
+    addTearDown(service.close);
+
+    await service.requestPasswordReset('student@example.com');
+  });
+
+  test('password reset verification returns the reset token', () async {
+    final httpClient = MockClient((http.Request sentRequest) async {
+      expect(
+        sentRequest.url,
+        Uri.parse('http://localhost:8080/api/v1/auth/password-reset/verify'),
+      );
+      expect(jsonDecode(sentRequest.body), <String, dynamic>{
+        'email': 'student@example.com',
+        'code': '123456',
+      });
+
+      return http.Response(
+        jsonEncode(<String, dynamic>{
+          'code': 200,
+          'message': 'Code verified',
+          'data': <String, dynamic>{'resetToken': ' reset-token '},
+        }),
+        200,
+        headers: const <String, String>{'content-type': 'application/json'},
+      );
+    });
+    final service = AuthApiService(
+      apiClient: ApiClient(
+        httpClient: httpClient,
+        baseUri: Uri.parse('http://localhost:8080/'),
+      ),
+    );
+    addTearDown(service.close);
+
+    final resetToken = await service.verifyPasswordResetCode(
+      email: 'student@example.com',
+      code: '123456',
+    );
+
+    expect(resetToken, 'reset-token');
+  });
+
+  test('password reset confirmation posts the new passwords', () async {
+    final httpClient = MockClient((http.Request sentRequest) async {
+      expect(
+        sentRequest.url,
+        Uri.parse('http://localhost:8080/api/v1/auth/password-reset/confirm'),
+      );
+      expect(jsonDecode(sentRequest.body), <String, dynamic>{
+        'resetToken': 'reset-token',
+        'newPassword': 'new-password',
+        'confirmPassword': 'new-password',
+      });
+
+      return http.Response(
+        jsonEncode(<String, dynamic>{
+          'code': 200,
+          'message': 'Password reset',
+          'data': null,
+        }),
+        200,
+        headers: const <String, String>{'content-type': 'application/json'},
+      );
+    });
+    final service = AuthApiService(
+      apiClient: ApiClient(
+        httpClient: httpClient,
+        baseUri: Uri.parse('http://localhost:8080/'),
+      ),
+    );
+    addTearDown(service.close);
+
+    await service.confirmPasswordReset(
+      resetToken: 'reset-token',
+      newPassword: 'new-password',
+      confirmPassword: 'new-password',
+    );
+  });
 }

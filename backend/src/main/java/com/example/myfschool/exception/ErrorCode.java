@@ -10,6 +10,10 @@ public enum ErrorCode {
     ACCESS_DENIED(HttpStatus.FORBIDDEN, 40300, "Access denied"),
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 40301, "User account is locked"),
     ACCOUNT_INACTIVE(HttpStatus.FORBIDDEN, 40302, "User account is inactive"),
+    INVALID_OR_EXPIRED_RESET_CODE(HttpStatus.BAD_REQUEST, 40002, "Invalid or expired reset code"),
+    INVALID_OR_EXPIRED_RESET_TOKEN(HttpStatus.BAD_REQUEST, 40003, "Invalid or expired reset token"),
+    PASSWORDS_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, 40004, "Passwords do not match"),
+    EMAIL_DELIVERY_FAILED(HttpStatus.SERVICE_UNAVAILABLE, 50301, "Unable to send reset email"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, 40401, "Resource not found"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "An unexpected error occurred"),
     UNSUCCESS_SENDING_SMS(HttpStatus.BAD_REQUEST, 40103, "Send Email Unsuccessfully");

@@ -9,6 +9,7 @@ import '../../data/models/login_response.dart';
 import '../../data/services/auth_api_service.dart';
 import '../../../home/presentation/screens/student_home_screen.dart';
 import '../widgets/login_input_field.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({this.authService, this.tokenStorage, super.key});
@@ -96,6 +97,26 @@ class _LoginScreenState extends State<LoginScreen> {
       ..showSnackBar(SnackBar(content: Text(message)));
   }
 
+  Future<void> _openForgotPassword() async {
+    final passwordWasReset = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => ForgotPasswordScreen(authService: _authService),
+      ),
+    );
+
+    if (passwordWasReset == true && mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Đổi mật khẩu thành công. Bạn có thể đăng nhập ngay.',
+            ),
+          ),
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
@@ -139,6 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       phoneController: _phoneController,
                       passwordController: _passwordController,
                       onLogin: _handleLogin,
+                      onForgotPassword: _openForgotPassword,
                       isLoading: _isLoading,
                     ),
                   ],
@@ -218,12 +240,14 @@ class _LoginPanel extends StatefulWidget {
     required this.phoneController,
     required this.passwordController,
     required this.onLogin,
+    required this.onForgotPassword,
     required this.isLoading,
   });
 
   final TextEditingController phoneController;
   final TextEditingController passwordController;
   final VoidCallback onLogin;
+  final VoidCallback onForgotPassword;
   final bool isLoading;
 
   @override
@@ -294,7 +318,7 @@ class _LoginPanelState extends State<_LoginPanel> {
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () {},
+              onPressed: widget.onForgotPassword,
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.deepOrange,
                 padding: EdgeInsets.zero,
@@ -338,86 +362,6 @@ class _LoginPanelState extends State<_LoginPanel> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-            ),
-          ),
-          const SizedBox(height: 28),
-          const _DividerLabel(),
-          const SizedBox(height: 26),
-          const _AccountNotice(),
-        ],
-      ),
-    );
-  }
-}
-
-class _DividerLabel extends StatelessWidget {
-  const _DividerLabel();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Row(
-      children: [
-        Expanded(child: Divider(color: Color(0xFFE0E3E7), thickness: 1)),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 14),
-          child: Text(
-            'ho\u1eb7c',
-            style: TextStyle(
-              color: AppColors.mutedText,
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        Expanded(child: Divider(color: Color(0xFFE0E3E7), thickness: 1)),
-      ],
-    );
-  }
-}
-
-class _AccountNotice extends StatelessWidget {
-  const _AccountNotice();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
-      decoration: BoxDecoration(
-        color: AppColors.infoBackground,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 15,
-            backgroundColor: AppColors.primaryOrange,
-            child: Icon(Icons.info_outline, color: Colors.white, size: 21),
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'B\u1ea1n ch\u01b0a c\u00f3 t\u00e0i kho\u1ea3n?',
-                  style: TextStyle(
-                    color: AppColors.darkText,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  'Vui l\u00f2ng li\u00ean h\u1ec7 nh\u00e0 tr\u01b0\u1eddng \u0111\u1ec3 \u0111\u01b0\u1ee3c c\u1ea5p t\u00e0i kho\u1ea3n s\u1eed d\u1ee5ng MyFSchool.',
-                  style: TextStyle(
-                    color: AppColors.mutedText,
-                    fontSize: 14,
-                    height: 1.55,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
             ),
           ),
         ],

@@ -33,6 +33,7 @@ Requirements: Java 21, Maven 3.9+, and Docker with Compose.
    The `dev` profile creates this account once, with a BCrypt hash:
 
    - Phone: `0987654321`
+   - Email: `student@myfschool.local`
    - Password: `123456`
    - Role/status: `STUDENT` / `ACTIVE`
 
@@ -91,8 +92,32 @@ Invalid credentials return HTTP 401 with a generic response:
 }
 ```
 
+Request a password-reset code by email:
+
+```powershell
+curl.exe -i -X POST http://localhost:8080/api/v1/auth/password-reset/request `
+  -H "Content-Type: application/json" `
+  -d '{"email":"student@myfschool.local"}'
+```
+
+Verify the six-digit code from the email, then use the returned one-time token to set a new password:
+
+```powershell
+curl.exe -i -X POST http://localhost:8080/api/v1/auth/password-reset/verify `
+  -H "Content-Type: application/json" `
+  -d '{"email":"student@myfschool.local","code":"123456"}'
+
+curl.exe -i -X POST http://localhost:8080/api/v1/auth/password-reset/confirm `
+  -H "Content-Type: application/json" `
+  -d '{"resetToken":"<token-from-verify>","newPassword":"new-password","confirmPassword":"new-password"}'
+```
+
+Reset codes and reset tokens expire after 10 minutes and can each be used only once. A new code can be requested after 60 seconds. The request endpoint always returns the same success response, including for unknown email addresses.
+
 ## Configuration
 
 The documented variables are listed in `.env.example`. The application never embeds a JWT signing secret. Relevant defaults are intended only for the local MySQL container; production should override all database values. JWT lifetime is controlled by `JWT_EXPIRATION_SECONDS` and is returned by the login response. Flutter Web origins are controlled with the comma-separated `CORS_ALLOWED_ORIGIN_PATTERNS` value.
+
+Password-reset email delivery uses the `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_SMTP_AUTH`, and `MAIL_STARTTLS_ENABLE` variables. The local defaults expect a development SMTP server on port 1025; production must provide a real SMTP account and TLS settings.
 
 The phone contract currently accepts exactly 10 decimal digits starting with `0`, matching the supplied development account.

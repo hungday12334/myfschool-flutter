@@ -26,6 +26,7 @@ public class DataInitializer {
 
             User user = User.builder()
                     .phoneNumber(phoneNumber)
+                    .email("student@myfschool.local")
                     .password(passwordEncoder.encode("123456"))
                     .fullName("Test Student")
                     .role(UserRole.STUDENT)

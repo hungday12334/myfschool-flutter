@@ -2,6 +2,12 @@ import 'package:flutter/foundation.dart';
 
 abstract final class ApiConfig {
   static const String loginPath = 'api/v1/auth/login';
+  static const String passwordResetRequestPath =
+      'api/v1/auth/password-reset/request';
+  static const String passwordResetVerifyPath =
+      'api/v1/auth/password-reset/verify';
+  static const String passwordResetConfirmPath =
+      'api/v1/auth/password-reset/confirm';
   static const Duration requestTimeout = Duration(seconds: 12);
 
   static const String _configuredBaseUrl = String.fromEnvironment(

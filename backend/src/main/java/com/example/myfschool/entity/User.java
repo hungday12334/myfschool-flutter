@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Locale;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +25,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(
         name = "users",
-        uniqueConstraints = @UniqueConstraint(name = "uk_users_phone_number", columnNames = "phone_number")
+        uniqueConstraints = {
+                @UniqueConstraint(name = "uk_users_phone_number", columnNames = "phone_number"),
+                @UniqueConstraint(name = "uk_users_email", columnNames = "email")
+        }
 )
 @Getter
 @Builder
@@ -38,6 +42,10 @@ public class User {
 
     @Column(name = "phone_number", nullable = false, unique = true, length = 20)
     private String phoneNumber;
+
+    // Nullable so Hibernate can safely add the column to databases that already contain users.
+    @Column(unique = true, length = 320)
+    private String email;
 
     @Column(nullable = false, length = 255)
     private String password;
@@ -61,6 +69,7 @@ public class User {
 
     @PrePersist
     void onCreate() {
+        normalizeEmail();
         LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
         createdAt = now;
         updatedAt = now;
@@ -68,6 +77,19 @@ public class User {
 
     @PreUpdate
     void onUpdate() {
+        normalizeEmail();
         updatedAt = LocalDateTime.now(ZoneOffset.UTC);
+    }
+
+    private void normalizeEmail() {
+        if (email == null) {
+            return;
+        }
+        String normalized = email.trim().toLowerCase(Locale.ROOT);
+        email = normalized.isEmpty() ? null : normalized;
+    }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 }
