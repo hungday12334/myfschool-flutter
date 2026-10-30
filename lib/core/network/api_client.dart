@@ -13,12 +13,45 @@ class ApiClient {
   final http.Client _httpClient;
   final Uri? _baseUriOverride;
 
+  Future<Map<String, dynamic>> getJson(
+    String path, {
+    Map<String, String>? queryParameters,
+    String? bearerToken,
+  }) async {
+    final uri = _resolveUri(path, queryParameters: queryParameters);
+    final token = bearerToken?.trim();
+
+    late final http.Response response;
+    try {
+      response = await _httpClient
+          .get(
+            uri,
+            headers: <String, String>{
+              'Accept': 'application/json',
+              if (token != null && token.isNotEmpty)
+                'Authorization': 'Bearer $token',
+            },
+          )
+          .timeout(ApiConfig.requestTimeout);
+    } on TimeoutException {
+      throw const ApiException(
+        message: 'Máy chủ phản hồi quá chậm. Vui lòng thử lại.',
+      );
+    } on http.ClientException {
+      throw const ApiException(
+        message:
+            'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.',
+      );
+    }
+
+    return _handleResponse(response);
+  }
+
   Future<Map<String, dynamic>> postJson(
     String path, {
     required Map<String, dynamic> body,
   }) async {
-    final normalizedPath = path.startsWith('/') ? path.substring(1) : path;
-    final uri = (_baseUriOverride ?? ApiConfig.baseUri).resolve(normalizedPath);
+    final uri = _resolveUri(path);
 
     late final http.Response response;
     try {
@@ -43,6 +76,19 @@ class ApiClient {
       );
     }
 
+    return _handleResponse(response);
+  }
+
+  Uri _resolveUri(String path, {Map<String, String>? queryParameters}) {
+    final normalizedPath = path.startsWith('/') ? path.substring(1) : path;
+    final uri = (_baseUriOverride ?? ApiConfig.baseUri).resolve(normalizedPath);
+    if (queryParameters == null || queryParameters.isEmpty) {
+      return uri;
+    }
+    return uri.replace(queryParameters: queryParameters);
+  }
+
+  Map<String, dynamic> _handleResponse(http.Response response) {
     final decodedBody = _decodeBody(response.body);
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (decodedBody is Map<String, dynamic>) {
@@ -81,10 +127,11 @@ class ApiClient {
     }
 
     return switch (statusCode) {
-      401 => 'Số điện thoại hoặc mật khẩu không đúng.',
-      403 => 'Tài khoản không được phép đăng nhập.',
+      401 => 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+      403 => 'Bạn không có quyền thực hiện thao tác này.',
+      404 => 'Không tìm thấy dữ liệu yêu cầu.',
       >= 500 => 'Máy chủ đang gặp sự cố. Vui lòng thử lại sau.',
-      _ => 'Đăng nhập không thành công. Vui lòng thử lại.',
+      _ => 'Yêu cầu không thành công. Vui lòng thử lại.',
     };
   }
 

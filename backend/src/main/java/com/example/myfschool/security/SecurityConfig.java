@@ -46,6 +46,8 @@ public class SecurityConfig {
                                 "/api/v1/auth/password-reset/verify",
                                 "/api/v1/auth/password-reset/confirm"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/students/me/timetable")
+                        .hasRole("STUDENT")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

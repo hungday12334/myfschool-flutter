@@ -11,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
@@ -37,7 +38,11 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(errorCode.getCode(), errorCode.getDefaultMessage(), fieldErrors));
     }
 
-    @ExceptionHandler({HttpMessageNotReadableException.class, ConstraintViolationException.class})
+    @ExceptionHandler({
+            HttpMessageNotReadableException.class,
+            ConstraintViolationException.class,
+            MethodArgumentTypeMismatchException.class
+    })
     public ResponseEntity<ApiResponse<Void>> handleMalformedRequest(Exception exception) {
         // Do not log the parser message: it may embed sensitive request-body values.
         log.debug("Rejected malformed request of type {}", exception.getClass().getSimpleName());

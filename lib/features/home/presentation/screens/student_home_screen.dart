@@ -2,9 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../timetable/data/services/timetable_api_service.dart';
+import '../../../timetable/presentation/screens/timetable_screen.dart';
 
 class StudentHomeScreen extends StatelessWidget {
-  const StudentHomeScreen({super.key});
+  const StudentHomeScreen({this.timetableService, super.key});
+
+  final TimetableService? timetableService;
+
+  void _openTimetable(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TimetableScreen(service: timetableService),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +32,16 @@ class StudentHomeScreen extends StatelessWidget {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 10, 20, 92),
                   sliver: SliverList.list(
-                    children: const [
-                      _FeatureGrid(),
-                      SizedBox(height: 20),
-                      _ScheduleSection(),
-                      SizedBox(height: 20),
-                      _HomeworkSection(),
+                    children: [
+                      _FeatureGrid(
+                        onTimetableTap: () => _openTimetable(context),
+                      ),
+                      const SizedBox(height: 20),
+                      _ScheduleSection(
+                        onViewAll: () => _openTimetable(context),
+                      ),
+                      const SizedBox(height: 20),
+                      const _HomeworkSection(),
                     ],
                   ),
                 ),
@@ -74,7 +90,6 @@ class _HomeHeader extends StatelessWidget {
               Text.rich(
                 const TextSpan(
                   children: [
-
                     TextSpan(
                       text: 'MyFSchool',
                       style: TextStyle(color: AppColors.deepOrange),
@@ -180,12 +195,14 @@ class _HomeHeader extends StatelessWidget {
 }
 
 class _FeatureGrid extends StatelessWidget {
-  const _FeatureGrid();
+  const _FeatureGrid({required this.onTimetableTap});
+
+  final VoidCallback onTimetableTap;
 
   @override
   Widget build(BuildContext context) {
-    const items = [
-      _FeatureItem(
+    final items = <_FeatureItem>[
+      const _FeatureItem(
         label: 'H\u1ecdc t\u1eadp',
         icon: Icons.menu_book_rounded,
         iconColor: Color(0xFFFF7A1A),
@@ -196,38 +213,39 @@ class _FeatureGrid extends StatelessWidget {
         icon: Icons.calendar_month_rounded,
         iconColor: Color(0xFFFF3569),
         backgroundColor: Color(0xFFFFEEF3),
+        onTap: onTimetableTap,
       ),
-      _FeatureItem(
+      const _FeatureItem(
         label: 'B\u00e0i t\u1eadp',
         icon: Icons.assignment_rounded,
         iconColor: Color(0xFF7847EA),
         backgroundColor: Color(0xFFF3EEFF),
       ),
-      _FeatureItem(
+      const _FeatureItem(
         label: 'K\u1ebft qu\u1ea3',
         icon: Icons.bar_chart_rounded,
         iconColor: Color(0xFF2F80ED),
         backgroundColor: Color(0xFFEAF4FF),
       ),
-      _FeatureItem(
+      const _FeatureItem(
         label: '\u0110i\u1ec3m danh',
         icon: Icons.check_box_rounded,
         iconColor: Color(0xFF18B982),
         backgroundColor: Color(0xFFEAFBF5),
       ),
-      _FeatureItem(
+      const _FeatureItem(
         label: 'Th\u00e0nh t\u00edch',
         icon: Icons.emoji_events_rounded,
         iconColor: Color(0xFFF5A400),
         backgroundColor: Color(0xFFFFF8E8),
       ),
-      _FeatureItem(
+      const _FeatureItem(
         label: '\u0110\u01a1n t\u1eeb',
         icon: Icons.article_rounded,
         iconColor: Color(0xFF7847EA),
         backgroundColor: Color(0xFFF4EEFF),
       ),
-      _FeatureItem(
+      const _FeatureItem(
         label: 'Xem th\u00eam',
         icon: Icons.grid_view_rounded,
         iconColor: Color(0xFF9AA3AD),
@@ -257,52 +275,68 @@ class _FeatureItem extends StatelessWidget {
     required this.icon,
     required this.iconColor,
     required this.backgroundColor,
+    this.onTap,
   });
 
   final String label;
   final IconData icon;
   final Color iconColor;
   final Color backgroundColor;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(14),
+    return Semantics(
+      button: onTap != null,
+      label: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: iconColor, size: 30),
+              ),
+              const SizedBox(height: 9),
+              Text(
+                label,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.darkText,
+                  fontSize: 12,
+                  height: 1.15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
-          child: Icon(icon, color: iconColor, size: 30),
         ),
-        const SizedBox(height: 9),
-        Text(
-          label,
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppColors.darkText,
-            fontSize: 12,
-            height: 1.15,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
 
 class _ScheduleSection extends StatelessWidget {
-  const _ScheduleSection();
+  const _ScheduleSection({required this.onViewAll});
+
+  final VoidCallback onViewAll;
 
   @override
   Widget build(BuildContext context) {
     return _SectionCard(
       title: 'Th\u1eddi kh\u00f3a bi\u1ec3u h\u00f4m nay',
+      onViewAll: onViewAll,
       child: const Column(
         children: [
           _ScheduleRow(
@@ -501,10 +535,15 @@ class _HomeworkSection extends StatelessWidget {
 }
 
 class _SectionCard extends StatelessWidget {
-  const _SectionCard({required this.title, required this.child});
+  const _SectionCard({
+    required this.title,
+    required this.child,
+    this.onViewAll,
+  });
 
   final String title;
   final Widget child;
+  final VoidCallback? onViewAll;
 
   @override
   Widget build(BuildContext context) {
@@ -527,7 +566,7 @@ class _SectionCard extends StatelessWidget {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: onViewAll ?? () {},
                 style: TextButton.styleFrom(
                   foregroundColor: const Color(0xFF2F80ED),
                   padding: EdgeInsets.zero,

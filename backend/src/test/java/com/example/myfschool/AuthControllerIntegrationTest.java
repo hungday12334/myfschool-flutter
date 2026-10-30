@@ -16,6 +16,7 @@ import com.example.myfschool.entity.User;
 import com.example.myfschool.enums.UserRole;
 import com.example.myfschool.enums.UserStatus;
 import com.example.myfschool.repository.PasswordResetCodeRepository;
+import com.example.myfschool.repository.TimetableEntryRepository;
 import com.example.myfschool.repository.UserRepository;
 import com.example.myfschool.exception.BusinessException;
 import com.example.myfschool.exception.ErrorCode;
@@ -61,6 +62,9 @@ class AuthControllerIntegrationTest {
     private PasswordResetCodeRepository passwordResetCodeRepository;
 
     @Autowired
+    private TimetableEntryRepository timetableEntryRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -72,6 +76,7 @@ class AuthControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         passwordResetCodeRepository.deleteAll();
+        timetableEntryRepository.deleteAll();
         userRepository.deleteAll();
         reset(emailService);
     }
