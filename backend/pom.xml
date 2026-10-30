@@ -85,6 +85,12 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+<!--        SMS-->
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>9.2.2</version>
+        </dependency>
     </dependencies>
 
     <build>

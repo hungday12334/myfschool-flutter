@@ -11,7 +11,9 @@ public enum ErrorCode {
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, 40301, "User account is locked"),
     ACCOUNT_INACTIVE(HttpStatus.FORBIDDEN, 40302, "User account is inactive"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, 40401, "Resource not found"),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "An unexpected error occurred");
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "An unexpected error occurred"),
+    UNSUCCESS_SENDING_SMS(HttpStatus.BAD_REQUEST, 40103, "Send Email Unsuccessfully");
+    ;
 
     private final HttpStatus httpStatus;
     private final int code;

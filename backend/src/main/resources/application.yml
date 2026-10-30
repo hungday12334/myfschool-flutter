@@ -16,7 +16,8 @@ spring:
           time_zone: UTC
   jackson:
     default-property-inclusion: always
-
+  config:
+    import: optional:file:.env[.properties]
 server:
   port: ${SERVER_PORT:8080}
 
@@ -27,3 +28,6 @@ app:
     issuer: ${JWT_ISSUER:myfschool-api}
   cors:
     allowed-origin-patterns: ${CORS_ALLOWED_ORIGIN_PATTERNS:http://localhost:*,http://127.0.0.1:*}
+speedsms:
+  base-url: https://api.speedsms.vn/index.php
+  access-token: Lase4es_IOYV6qWEISGB289IMdaJCcSm
