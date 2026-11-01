@@ -1,16 +1,21 @@
 package com.example.myfschool.config;
 
-import com.example.myfschool.entity.User;
-import com.example.myfschool.entity.TimetableEntry;
+import com.example.myfschool.entity.AttendanceRecord;
 import com.example.myfschool.entity.GradeAssessment;
 import com.example.myfschool.entity.StudentProfile;
+import com.example.myfschool.entity.TimetableEntry;
+import com.example.myfschool.entity.TuitionFee;
+import com.example.myfschool.entity.User;
 import com.example.myfschool.enums.AssessmentType;
+import com.example.myfschool.enums.AttendanceStatus;
 import com.example.myfschool.enums.UserRole;
 import com.example.myfschool.enums.UserStatus;
-import com.example.myfschool.repository.TimetableEntryRepository;
-import com.example.myfschool.repository.UserRepository;
+import com.example.myfschool.repository.AttendanceRecordRepository;
 import com.example.myfschool.repository.GradeAssessmentRepository;
 import com.example.myfschool.repository.StudentProfileRepository;
+import com.example.myfschool.repository.TimetableEntryRepository;
+import com.example.myfschool.repository.TuitionFeeRepository;
+import com.example.myfschool.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -37,6 +42,8 @@ public class DataInitializer {
             TimetableEntryRepository timetableEntryRepository,
             StudentProfileRepository studentProfileRepository,
             GradeAssessmentRepository gradeAssessmentRepository,
+            AttendanceRecordRepository attendanceRecordRepository,
+            TuitionFeeRepository tuitionFeeRepository,
             PasswordEncoder passwordEncoder
     ) {
         return args -> {
@@ -62,6 +69,8 @@ public class DataInitializer {
             seedTimetable(user, timetableEntryRepository);
             StudentProfile student = seedStudentProfile(user, studentProfileRepository);
             seedGrades(student, gradeAssessmentRepository);
+            seedAttendance(student, attendanceRecordRepository);
+            seedTuition(student, tuitionFeeRepository);
         };
     }
 
@@ -136,6 +145,109 @@ public class DataInitializer {
                 .assessmentLabel(label)
                 .coefficient(coefficient)
                 .score(BigDecimal.valueOf(score))
+                .build();
+    }
+
+    private void seedAttendance(
+            StudentProfile student,
+            AttendanceRecordRepository attendanceRecordRepository
+    ) {
+        if (attendanceRecordRepository.existsByStudentId(student.getId())) {
+            return;
+        }
+        LocalDate firstDay = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh")).withDayOfMonth(1);
+        List<AttendanceRecord> records = new ArrayList<>();
+        int schoolDayIndex = 0;
+        for (int day = 0; day < firstDay.lengthOfMonth() && schoolDayIndex < 20; day++) {
+            LocalDate date = firstDay.plusDays(day);
+            if (date.getDayOfWeek() == DayOfWeek.SATURDAY
+                    || date.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                continue;
+            }
+            AttendanceStatus status = switch (schoolDayIndex) {
+                case 4, 11 -> AttendanceStatus.LATE;
+                case 8 -> AttendanceStatus.EXCUSED_ABSENCE;
+                case 15 -> AttendanceStatus.UNEXCUSED_ABSENCE;
+                default -> AttendanceStatus.PRESENT;
+            };
+            LocalTime checkIn = switch (status) {
+                case PRESENT -> LocalTime.of(7, 22 + schoolDayIndex % 7);
+                case LATE -> LocalTime.of(7, 46 + schoolDayIndex % 4);
+                default -> null;
+            };
+            String note = switch (status) {
+                case LATE -> "Đến lớp sau giờ quy định";
+                case EXCUSED_ABSENCE -> "Nghỉ ốm có đơn xin phép";
+                case UNEXCUSED_ABSENCE -> "Chưa có đơn xin phép";
+                default -> null;
+            };
+            records.add(AttendanceRecord.builder()
+                    .student(student)
+                    .attendanceDate(date)
+                    .status(status)
+                    .checkInTime(checkIn)
+                    .note(note)
+                    .build());
+            schoolDayIndex++;
+        }
+        attendanceRecordRepository.saveAll(records);
+        log.info("Created {} development-only attendance records", records.size());
+    }
+
+    private void seedTuition(StudentProfile student, TuitionFeeRepository tuitionFeeRepository) {
+        if (tuitionFeeRepository.existsByStudentId(student.getId())) {
+            return;
+        }
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+        int startYear = today.getMonthValue() >= 8 ? today.getYear() : today.getYear() - 1;
+        String academicYear = startYear + "-" + (startYear + 1);
+        List<TuitionFee> fees = List.of(
+                tuition(student, "TUITION_HK1", "Học phí học kỳ 1",
+                        "Học phí chương trình chính khóa", academicYear,
+                        LocalDate.of(startYear, 9, 15), 6_000_000, 6_000_000,
+                        LocalDate.of(startYear, 9, 10)),
+                tuition(student, "INSURANCE", "Bảo hiểm học sinh",
+                        "Bảo hiểm y tế và bảo hiểm tai nạn", academicYear,
+                        LocalDate.of(startYear, 9, 30), 800_000, 800_000,
+                        LocalDate.of(startYear, 9, 18)),
+                tuition(student, "BOARDING", "Phí bán trú",
+                        "Phí bán trú học kỳ 1", academicYear,
+                        LocalDate.of(startYear, 11, 15), 3_000_000, 1_500_000,
+                        LocalDate.of(startYear, 10, 25)),
+                tuition(student, "TUITION_HK2", "Học phí học kỳ 2",
+                        "Học phí chương trình chính khóa", academicYear,
+                        LocalDate.of(startYear + 1, 1, 15), 6_000_000, 0,
+                        null),
+                tuition(student, "SCHOOL_BUS", "Phí xe đưa đón",
+                        "Phí xe đưa đón tháng 11", academicYear,
+                        LocalDate.of(startYear, 11, 10), 1_200_000, 0,
+                        null)
+        );
+        tuitionFeeRepository.saveAll(fees);
+        log.info("Created {} development-only tuition fees", fees.size());
+    }
+
+    private TuitionFee tuition(
+            StudentProfile student,
+            String code,
+            String title,
+            String description,
+            String academicYear,
+            LocalDate dueDate,
+            long amount,
+            long paidAmount,
+            LocalDate paidDate
+    ) {
+        return TuitionFee.builder()
+                .student(student)
+                .feeCode(code)
+                .title(title)
+                .description(description)
+                .academicYear(academicYear)
+                .dueDate(dueDate)
+                .amount(BigDecimal.valueOf(amount))
+                .paidAmount(BigDecimal.valueOf(paidAmount))
+                .paidDate(paidDate)
                 .build();
     }
 

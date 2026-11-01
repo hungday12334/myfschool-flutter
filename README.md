@@ -1,6 +1,6 @@
 # MyFSchool
 
-MyFSchool is a parent-facing Flutter client backed by a Java 21 / Spring Boot 3 API. Login credentials are validated by the backend against MySQL, passwords are stored as BCrypt hashes, and authenticated requests use stateless JWT bearer tokens. Parents can view the linked student's timetable and grade report by semester or full year.
+MyFSchool is a parent-facing Flutter client backed by a Java 21 / Spring Boot 3 API. Login credentials are validated by the backend against MySQL, passwords are stored as BCrypt hashes, and authenticated requests use stateless JWT bearer tokens. Parents can view the linked student's timetable, grades, monthly attendance report, and paid/outstanding tuition fees.
 
 ## Project layout
 
@@ -18,14 +18,16 @@ MyFSchool is a parent-facing Flutter client backed by a Java 21 / Spring Boot 3 
 |       |   |-- security/            BCrypt, JWT, and Spring Security
 |       |   |-- exception/           Standard API errors
 |       |   `-- config/              Development data initializer
-|       `-- test/                    Authentication, timetable, and grade API tests
+|       `-- test/                    Authentication and parent-feature API tests
 `-- lib/
     |-- core/config/                 Platform-aware API URL
     |-- core/network/                JSON HTTP client
     |-- core/storage/                Access-token storage
+    |-- features/attendance/         Monthly attendance report
     |-- features/auth/               Parent login models and UI
     |-- features/grades/             Grade report models, API service, and UI
-    `-- features/timetable/          Parent timetable service and UI
+    |-- features/timetable/          Parent timetable service and UI
+    `-- features/tuition/            Paid and outstanding tuition fees
 ```
 
 ## Prerequisites
@@ -122,6 +124,14 @@ Invoke-RestMethod `
 Invoke-RestMethod `
   -Uri 'http://localhost:8080/api/v1/parents/me/grades?period=1' `
   -Headers @{ Authorization = "Bearer $token" }
+
+Invoke-RestMethod `
+  -Uri 'http://localhost:8080/api/v1/parents/me/attendance?month=2026-11' `
+  -Headers @{ Authorization = "Bearer $token" }
+
+Invoke-RestMethod `
+  -Uri 'http://localhost:8080/api/v1/parents/me/tuition' `
+  -Headers @{ Authorization = "Bearer $token" }
 ```
 
 A successful login returns HTTP 200 with `accessToken`, `tokenType`, configured `expiresIn`, and a password-free user DTO. Invalid credentials return HTTP 401:
@@ -155,4 +165,6 @@ To verify the full flow manually:
 4. Enter `0987654321` and `123456` in the unchanged login screen.
 5. Confirm the loading state appears, the token is stored, and the app replaces the login route with the parent home screen.
 6. Open `Kết quả`, switch between the two semesters/full year, and open a subject to view its component grades and chart.
-7. Retry with an incorrect password and confirm the app remains on login and shows the backend error.
+7. Open `Điểm danh` to change months and review attendance details.
+8. Open `Học phí` and switch between outstanding and paid fees.
+9. Retry with an incorrect password and confirm the app remains on login and shows the backend error.

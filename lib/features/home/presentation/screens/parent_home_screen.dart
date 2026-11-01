@@ -2,16 +2,28 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../attendance/data/services/attendance_api_service.dart';
+import '../../../attendance/presentation/screens/attendance_screen.dart';
 import '../../../grades/data/services/grade_api_service.dart';
 import '../../../grades/presentation/screens/grade_screen.dart';
 import '../../../timetable/data/services/timetable_api_service.dart';
 import '../../../timetable/presentation/screens/timetable_screen.dart';
+import '../../../tuition/data/services/tuition_api_service.dart';
+import '../../../tuition/presentation/screens/tuition_screen.dart';
 
 class ParentHomeScreen extends StatelessWidget {
-  const ParentHomeScreen({this.timetableService, this.gradeService, super.key});
+  const ParentHomeScreen({
+    this.timetableService,
+    this.gradeService,
+    this.attendanceService,
+    this.tuitionService,
+    super.key,
+  });
 
   final TimetableService? timetableService;
   final GradeService? gradeService;
+  final AttendanceService? attendanceService;
+  final TuitionService? tuitionService;
 
   void _openTimetable(BuildContext context) {
     Navigator.of(context).push(
@@ -25,6 +37,22 @@ class ParentHomeScreen extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => GradeScreen(service: gradeService),
+      ),
+    );
+  }
+
+  void _openAttendance(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => AttendanceScreen(service: attendanceService),
+      ),
+    );
+  }
+
+  void _openTuition(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => TuitionScreen(service: tuitionService),
       ),
     );
   }
@@ -47,6 +75,8 @@ class ParentHomeScreen extends StatelessWidget {
                       _FeatureGrid(
                         onTimetableTap: () => _openTimetable(context),
                         onGradesTap: () => _openGrades(context),
+                        onAttendanceTap: () => _openAttendance(context),
+                        onTuitionTap: () => _openTuition(context),
                       ),
                       const SizedBox(height: 20),
                       _ScheduleSection(
@@ -207,10 +237,17 @@ class _HomeHeader extends StatelessWidget {
 }
 
 class _FeatureGrid extends StatelessWidget {
-  const _FeatureGrid({required this.onTimetableTap, required this.onGradesTap});
+  const _FeatureGrid({
+    required this.onTimetableTap,
+    required this.onGradesTap,
+    required this.onAttendanceTap,
+    required this.onTuitionTap,
+  });
 
   final VoidCallback onTimetableTap;
   final VoidCallback onGradesTap;
+  final VoidCallback onAttendanceTap;
+  final VoidCallback onTuitionTap;
 
   @override
   Widget build(BuildContext context) {
@@ -241,17 +278,19 @@ class _FeatureGrid extends StatelessWidget {
         backgroundColor: Color(0xFFEAF4FF),
         onTap: onGradesTap,
       ),
-      const _FeatureItem(
+      _FeatureItem(
         label: '\u0110i\u1ec3m danh',
         icon: Icons.check_box_rounded,
         iconColor: Color(0xFF18B982),
         backgroundColor: Color(0xFFEAFBF5),
+        onTap: onAttendanceTap,
       ),
-      const _FeatureItem(
-        label: 'Th\u00e0nh t\u00edch',
-        icon: Icons.emoji_events_rounded,
+      _FeatureItem(
+        label: 'H\u1ecdc ph\u00ed',
+        icon: Icons.account_balance_wallet_rounded,
         iconColor: Color(0xFFF5A400),
         backgroundColor: Color(0xFFFFF8E8),
+        onTap: onTuitionTap,
       ),
       const _FeatureItem(
         label: '\u0110\u01a1n t\u1eeb',

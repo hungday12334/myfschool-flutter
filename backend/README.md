@@ -1,6 +1,6 @@
 # MyFSchool parent backend
 
-Java 21 / Spring Boot 3.5 REST API for the parent Flutter application. It provides authentication, linked-student timetables, and grade reports using MySQL 8, Spring Data JPA, BCrypt, and stateless HS256 JWT access tokens.
+Java 21 / Spring Boot 3.5 REST API for the parent Flutter application. It provides authentication, linked-student timetables, grades, attendance reports, and tuition information using MySQL 8, Spring Data JPA, BCrypt, and stateless HS256 JWT access tokens.
 
 ## Run locally
 
@@ -96,6 +96,20 @@ Parent timetable:
 
 ```powershell
 curl.exe -i "http://localhost:8080/api/v1/parents/me/timetable?weekStart=2026-10-26" `
+  -H "Authorization: Bearer <signed-jwt>"
+```
+
+Monthly attendance report (`month` uses `YYYY-MM`):
+
+```powershell
+curl.exe -i "http://localhost:8080/api/v1/parents/me/attendance?month=2026-11" `
+  -H "Authorization: Bearer <signed-jwt>"
+```
+
+Paid, partially paid, and outstanding tuition fees:
+
+```powershell
+curl.exe -i "http://localhost:8080/api/v1/parents/me/tuition" `
   -H "Authorization: Bearer <signed-jwt>"
 ```
 

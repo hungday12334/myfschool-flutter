@@ -49,7 +49,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,
                                 "/api/v1/parents/me/timetable",
                                 "/api/v1/parents/me/grades",
-                                "/api/v1/parents/me/grades/**"
+                                "/api/v1/parents/me/grades/**",
+                                "/api/v1/parents/me/attendance",
+                                "/api/v1/parents/me/tuition"
                         ).hasRole("PARENT")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
