@@ -1,6 +1,6 @@
-# MyFSchool authentication backend
+# MyFSchool parent backend
 
-Java 21 / Spring Boot 3.5 REST API for the Flutter application's login flow. It uses MySQL 8, Spring Data JPA, BCrypt, and stateless HS256 JWT access tokens.
+Java 21 / Spring Boot 3.5 REST API for the parent Flutter application. It provides authentication, linked-student timetables, and grade reports using MySQL 8, Spring Data JPA, BCrypt, and stateless HS256 JWT access tokens.
 
 ## Run locally
 
@@ -33,9 +33,9 @@ Requirements: Java 21, Maven 3.9+, and Docker with Compose.
    The `dev` profile creates this account once, with a BCrypt hash:
 
    - Phone: `0987654321`
-   - Email: `student@myfschool.local`
+   - Email: `parent@myfschool.local`
    - Password: `123456`
-   - Role/status: `STUDENT` / `ACTIVE`
+   - Role/status: `PARENT` / `ACTIVE`
 
    Never enable the `dev` profile in production. Supply a fresh production `JWT_SECRET`, database credentials, an HTTPS deployment, and explicit production CORS origins through `CORS_ALLOWED_ORIGIN_PATTERNS`.
 
@@ -68,8 +68,8 @@ Successful response:
     "user": {
       "id": 1,
       "phoneNumber": "0987654321",
-      "fullName": "Test Student",
-      "role": "STUDENT"
+      "fullName": "Test Parent",
+      "role": "PARENT"
     }
   }
 }
@@ -79,6 +79,23 @@ Authenticated user (replace the placeholder with the login token):
 
 ```powershell
 curl.exe -i http://localhost:8080/api/v1/auth/me `
+  -H "Authorization: Bearer <signed-jwt>"
+```
+
+Parent grade report and subject detail (`period` accepts `1`, `2`, or `all`):
+
+```powershell
+curl.exe -i "http://localhost:8080/api/v1/parents/me/grades?period=1" `
+  -H "Authorization: Bearer <signed-jwt>"
+
+curl.exe -i "http://localhost:8080/api/v1/parents/me/grades/MATH?period=1" `
+  -H "Authorization: Bearer <signed-jwt>"
+```
+
+Parent timetable:
+
+```powershell
+curl.exe -i "http://localhost:8080/api/v1/parents/me/timetable?weekStart=2026-10-26" `
   -H "Authorization: Bearer <signed-jwt>"
 ```
 
@@ -97,7 +114,7 @@ Request a password-reset code by email:
 ```powershell
 curl.exe -i -X POST http://localhost:8080/api/v1/auth/password-reset/request `
   -H "Content-Type: application/json" `
-  -d '{"email":"student@myfschool.local"}'
+  -d '{"email":"parent@myfschool.local"}'
 ```
 
 Verify the six-digit code from the email, then use the returned one-time token to set a new password:
@@ -105,7 +122,7 @@ Verify the six-digit code from the email, then use the returned one-time token t
 ```powershell
 curl.exe -i -X POST http://localhost:8080/api/v1/auth/password-reset/verify `
   -H "Content-Type: application/json" `
-  -d '{"email":"student@myfschool.local","code":"123456"}'
+  -d '{"email":"parent@myfschool.local","code":"123456"}'
 
 curl.exe -i -X POST http://localhost:8080/api/v1/auth/password-reset/confirm `
   -H "Content-Type: application/json" `

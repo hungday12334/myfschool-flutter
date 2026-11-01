@@ -1,6 +1,6 @@
 # MyFSchool
 
-MyFSchool is a Flutter client backed by a Java 21 / Spring Boot 3 authentication API. Login credentials are validated by the backend against MySQL, passwords are stored as BCrypt hashes, and authenticated requests use stateless JWT bearer tokens.
+MyFSchool is a parent-facing Flutter client backed by a Java 21 / Spring Boot 3 API. Login credentials are validated by the backend against MySQL, passwords are stored as BCrypt hashes, and authenticated requests use stateless JWT bearer tokens. Parents can view the linked student's timetable and grade report by semester or full year.
 
 ## Project layout
 
@@ -18,12 +18,14 @@ MyFSchool is a Flutter client backed by a Java 21 / Spring Boot 3 authentication
 |       |   |-- security/            BCrypt, JWT, and Spring Security
 |       |   |-- exception/           Standard API errors
 |       |   `-- config/              Development data initializer
-|       `-- test/                    Authentication integration tests
+|       `-- test/                    Authentication, timetable, and grade API tests
 `-- lib/
     |-- core/config/                 Platform-aware API URL
     |-- core/network/                JSON HTTP client
     |-- core/storage/                Access-token storage
-    `-- features/auth/               Login models, service, and existing UI
+    |-- features/auth/               Parent login models and UI
+    |-- features/grades/             Grade report models, API service, and UI
+    `-- features/timetable/          Parent timetable service and UI
 ```
 
 ## Prerequisites
@@ -61,7 +63,7 @@ mvn spring-boot:run
 ```text
 Phone:    0987654321
 Password: 123456
-Role:     STUDENT
+Role:     PARENT
 Status:   ACTIVE
 ```
 
@@ -116,6 +118,10 @@ $token = $login.data.accessToken
 Invoke-RestMethod `
   -Uri http://localhost:8080/api/v1/auth/me `
   -Headers @{ Authorization = "Bearer $token" }
+
+Invoke-RestMethod `
+  -Uri 'http://localhost:8080/api/v1/parents/me/grades?period=1' `
+  -Headers @{ Authorization = "Bearer $token" }
 ```
 
 A successful login returns HTTP 200 with `accessToken`, `tokenType`, configured `expiresIn`, and a password-free user DTO. Invalid credentials return HTTP 401:
@@ -147,5 +153,6 @@ To verify the full flow manually:
 2. Confirm the login PowerShell request succeeds.
 3. Start Flutter for the desired target, overriding `API_BASE_URL` for a physical device.
 4. Enter `0987654321` and `123456` in the unchanged login screen.
-5. Confirm the loading state appears, the token is stored, and the app replaces the login route with the existing student home screen.
-6. Retry with an incorrect password and confirm the app remains on login and shows the backend error.
+5. Confirm the loading state appears, the token is stored, and the app replaces the login route with the parent home screen.
+6. Open `Kết quả`, switch between the two semesters/full year, and open a subject to view its component grades and chart.
+7. Retry with an incorrect password and confirm the app remains on login and shows the backend error.

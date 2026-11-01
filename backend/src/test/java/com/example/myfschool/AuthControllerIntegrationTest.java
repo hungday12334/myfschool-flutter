@@ -96,8 +96,8 @@ class AuthControllerIntegrationTest {
                 .andExpect(jsonPath("$.data.expiresIn").value(3600))
                 .andExpect(jsonPath("$.data.user.id").value(user.getId()))
                 .andExpect(jsonPath("$.data.user.phoneNumber").value(user.getPhoneNumber()))
-                .andExpect(jsonPath("$.data.user.fullName").value("Test Student"))
-                .andExpect(jsonPath("$.data.user.role").value("STUDENT"))
+                .andExpect(jsonPath("$.data.user.fullName").value("Test Parent"))
+                .andExpect(jsonPath("$.data.user.role").value("PARENT"))
                 .andExpect(jsonPath("$.data.user.password").doesNotExist());
     }
 
@@ -189,7 +189,7 @@ class AuthControllerIntegrationTest {
         User user = createUser("0987654321", UserStatus.ACTIVE, email);
         doThrow(new BusinessException(ErrorCode.EMAIL_DELIVERY_FAILED))
                 .when(emailService)
-                .sendPasswordResetCode(eq(email), eq("Test Student"), anyString());
+                .sendPasswordResetCode(eq(email), eq("Test Parent"), anyString());
 
         mockMvc.perform(post("/api/v1/auth/password-reset/request")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -357,7 +357,7 @@ class AuthControllerIntegrationTest {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.id").value(user.getId()))
                 .andExpect(jsonPath("$.data.phoneNumber").value(user.getPhoneNumber()))
-                .andExpect(jsonPath("$.data.role").value("STUDENT"))
+                .andExpect(jsonPath("$.data.role").value("PARENT"))
                 .andExpect(jsonPath("$.data.password").doesNotExist());
     }
 
@@ -370,8 +370,8 @@ class AuthControllerIntegrationTest {
                 .phoneNumber(phoneNumber)
                 .email(email)
                 .password(passwordEncoder.encode(PASSWORD))
-                .fullName("Test Student")
-                .role(UserRole.STUDENT)
+                .fullName("Test Parent")
+                .role(UserRole.PARENT)
                 .status(status)
                 .build());
     }
@@ -385,7 +385,7 @@ class AuthControllerIntegrationTest {
                         .value("If an account exists for this email, a reset code has been sent"));
 
         ArgumentCaptor<String> codeCaptor = ArgumentCaptor.forClass(String.class);
-        verify(emailService).sendPasswordResetCode(eq(email), eq("Test Student"), codeCaptor.capture());
+        verify(emailService).sendPasswordResetCode(eq(email), eq("Test Parent"), codeCaptor.capture());
         return codeCaptor.getValue();
     }
 

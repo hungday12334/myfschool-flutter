@@ -7,7 +7,7 @@ import 'package:myschoolse1947/core/storage/token_storage.dart';
 import 'package:myschoolse1947/features/auth/data/models/login_request.dart';
 import 'package:myschoolse1947/features/auth/data/models/login_response.dart';
 import 'package:myschoolse1947/features/auth/data/services/auth_api_service.dart';
-import 'package:myschoolse1947/features/home/presentation/screens/student_home_screen.dart';
+import 'package:myschoolse1947/features/home/presentation/screens/parent_home_screen.dart';
 import 'package:myschoolse1947/main.dart';
 
 void main() {
@@ -115,7 +115,7 @@ void main() {
     expect(authService.lastRequest?.phoneNumber, '0987654321');
     expect(authService.lastRequest?.password, '123456');
     expect(tokenStorage.savedToken, 'signed-jwt');
-    expect(find.byType(StudentHomeScreen), findsOneWidget);
+    expect(find.byType(ParentHomeScreen), findsOneWidget);
     expect(find.text('Trang ch\u1ee7'), findsOneWidget);
   });
 
@@ -137,8 +137,42 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Invalid phone number or password'), findsOneWidget);
-    expect(find.byType(StudentHomeScreen), findsNothing);
+    expect(find.byType(ParentHomeScreen), findsNothing);
     expect(tokenStorage.savedToken, isNull);
+  });
+
+  testWidgets('Student account is rejected by the parent application', (
+    WidgetTester tester,
+  ) async {
+    final studentResponse = LoginResponse(
+      accessToken: 'student-jwt',
+      tokenType: 'Bearer',
+      expiresIn: 3600,
+      user: const AuthenticatedUser(
+        id: 2,
+        phoneNumber: '0911111111',
+        fullName: 'Test Student',
+        role: 'STUDENT',
+      ),
+    );
+    final tokenStorage = _FakeTokenStorage();
+    await tester.pumpWidget(
+      MyFSchoolApp(
+        authService: _FakeAuthService((_) async => studentResponse),
+        tokenStorage: tokenStorage,
+      ),
+    );
+
+    await _enterCredentials(tester);
+    await tester.tap(find.text('\u0110\u0103ng nh\u1eadp'));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Ứng dụng này chỉ dành cho tài khoản phụ huynh.'),
+      findsOneWidget,
+    );
+    expect(tokenStorage.savedToken, isNull);
+    expect(find.byType(ParentHomeScreen), findsNothing);
   });
 
   testWidgets('Login is disabled while one request is in progress', (
@@ -165,7 +199,7 @@ void main() {
 
     pendingLogin.complete(_successResponse);
     await tester.pumpAndSettle();
-    expect(find.byType(StudentHomeScreen), findsOneWidget);
+    expect(find.byType(ParentHomeScreen), findsOneWidget);
   });
 
   testWidgets('Secure storage failure does not navigate to home', (
@@ -184,7 +218,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tokenStorage.saveCallCount, 1);
-    expect(find.byType(StudentHomeScreen), findsNothing);
+    expect(find.byType(ParentHomeScreen), findsNothing);
     expect(find.text('\u0110\u0103ng nh\u1eadp'), findsOneWidget);
   });
 
@@ -240,8 +274,8 @@ const LoginResponse _successResponse = LoginResponse(
   user: AuthenticatedUser(
     id: 1,
     phoneNumber: '0987654321',
-    fullName: 'Test Student',
-    role: 'STUDENT',
+    fullName: 'Test Parent',
+    role: 'PARENT',
   ),
 );
 

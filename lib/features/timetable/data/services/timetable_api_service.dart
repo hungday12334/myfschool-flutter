@@ -27,7 +27,7 @@ class TimetableApiService implements TimetableService {
 
     final monday = _mondayOf(weekStart);
     final response = await _apiClient.getJson(
-      ApiConfig.studentTimetablePath,
+      ApiConfig.parentTimetablePath,
       queryParameters: <String, String>{'weekStart': _formatDate(monday)},
       bearerToken: accessToken,
     );

@@ -17,7 +17,7 @@ void main() {
         expect(
           request.url,
           Uri.parse(
-            'http://localhost:8080/api/v1/students/me/timetable'
+            'http://localhost:8080/api/v1/parents/me/timetable'
             '?weekStart=2026-10-05',
           ),
         );

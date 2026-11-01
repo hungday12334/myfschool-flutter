@@ -68,33 +68,33 @@ class TimetableControllerIntegrationTest {
 
     @Test
     void timetableRejectsUnauthenticatedRequests() throws Exception {
-        mockMvc.perform(get("/api/v1/students/me/timetable"))
+        mockMvc.perform(get("/api/v1/parents/me/timetable"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.code").value(40100));
     }
 
     @Test
-    void timetableRejectsAuthenticatedNonStudent() throws Exception {
+    void timetableRejectsAuthenticatedNonParent() throws Exception {
         User teacher = createUser("0911111111", UserRole.TEACHER);
         String token = loginAndExtractToken(teacher.getPhoneNumber());
 
-        mockMvc.perform(get("/api/v1/students/me/timetable")
+        mockMvc.perform(get("/api/v1/parents/me/timetable")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.code").value(40300));
     }
 
     @Test
-    void timetableReturnsSevenDaysSortedAndOnlyForAuthenticatedStudent() throws Exception {
+    void timetableReturnsSevenDaysSortedAndOnlyForAuthenticatedParent() throws Exception {
         LocalDate monday = LocalDate.of(2026, 10, 26);
-        User student = createUser("0987654321", UserRole.STUDENT);
-        User anotherStudent = createUser("0922222222", UserRole.STUDENT);
+        User student = createUser("0987654321", UserRole.PARENT);
+        User anotherStudent = createUser("0922222222", UserRole.PARENT);
         saveLesson(student, monday, 2, "ENGLISH", "Tiếng Anh", LocalTime.of(8, 30));
         saveLesson(student, monday, 1, "MATH", "Toán", LocalTime.of(7, 30));
         saveLesson(anotherStudent, monday, 3, "HIDDEN", "Hidden lesson", LocalTime.of(9, 30));
         String token = loginAndExtractToken(student.getPhoneNumber());
 
-        mockMvc.perform(get("/api/v1/students/me/timetable")
+        mockMvc.perform(get("/api/v1/parents/me/timetable")
                         .queryParam("weekStart", monday.toString())
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
@@ -120,10 +120,10 @@ class TimetableControllerIntegrationTest {
 
     @Test
     void timetableNormalizesMidweekDateToMonday() throws Exception {
-        User student = createUser("0987654321", UserRole.STUDENT);
+        User student = createUser("0987654321", UserRole.PARENT);
         String token = loginAndExtractToken(student.getPhoneNumber());
 
-        mockMvc.perform(get("/api/v1/students/me/timetable")
+        mockMvc.perform(get("/api/v1/parents/me/timetable")
                         .queryParam("weekStart", "2026-10-29")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())
@@ -134,10 +134,10 @@ class TimetableControllerIntegrationTest {
 
     @Test
     void timetableRejectsMalformedWeekStart() throws Exception {
-        User student = createUser("0987654321", UserRole.STUDENT);
+        User student = createUser("0987654321", UserRole.PARENT);
         String token = loginAndExtractToken(student.getPhoneNumber());
 
-        mockMvc.perform(get("/api/v1/students/me/timetable")
+        mockMvc.perform(get("/api/v1/parents/me/timetable")
                         .queryParam("weekStart", "not-a-date")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isBadRequest())
@@ -147,10 +147,10 @@ class TimetableControllerIntegrationTest {
 
     @Test
     void timetableReturnsSevenEmptyDaysWhenWeekHasNoLessons() throws Exception {
-        User student = createUser("0987654321", UserRole.STUDENT);
+        User student = createUser("0987654321", UserRole.PARENT);
         String token = loginAndExtractToken(student.getPhoneNumber());
 
-        mockMvc.perform(get("/api/v1/students/me/timetable")
+        mockMvc.perform(get("/api/v1/parents/me/timetable")
                         .queryParam("weekStart", "2030-01-07")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + token))
                 .andExpect(status().isOk())

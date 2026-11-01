@@ -2,18 +2,29 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/constants/app_colors.dart';
+import '../../../grades/data/services/grade_api_service.dart';
+import '../../../grades/presentation/screens/grade_screen.dart';
 import '../../../timetable/data/services/timetable_api_service.dart';
 import '../../../timetable/presentation/screens/timetable_screen.dart';
 
-class StudentHomeScreen extends StatelessWidget {
-  const StudentHomeScreen({this.timetableService, super.key});
+class ParentHomeScreen extends StatelessWidget {
+  const ParentHomeScreen({this.timetableService, this.gradeService, super.key});
 
   final TimetableService? timetableService;
+  final GradeService? gradeService;
 
   void _openTimetable(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => TimetableScreen(service: timetableService),
+      ),
+    );
+  }
+
+  void _openGrades(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => GradeScreen(service: gradeService),
       ),
     );
   }
@@ -35,6 +46,7 @@ class StudentHomeScreen extends StatelessWidget {
                     children: [
                       _FeatureGrid(
                         onTimetableTap: () => _openTimetable(context),
+                        onGradesTap: () => _openGrades(context),
                       ),
                       const SizedBox(height: 20),
                       _ScheduleSection(
@@ -195,9 +207,10 @@ class _HomeHeader extends StatelessWidget {
 }
 
 class _FeatureGrid extends StatelessWidget {
-  const _FeatureGrid({required this.onTimetableTap});
+  const _FeatureGrid({required this.onTimetableTap, required this.onGradesTap});
 
   final VoidCallback onTimetableTap;
+  final VoidCallback onGradesTap;
 
   @override
   Widget build(BuildContext context) {
@@ -221,11 +234,12 @@ class _FeatureGrid extends StatelessWidget {
         iconColor: Color(0xFF7847EA),
         backgroundColor: Color(0xFFF3EEFF),
       ),
-      const _FeatureItem(
+      _FeatureItem(
         label: 'K\u1ebft qu\u1ea3',
         icon: Icons.bar_chart_rounded,
         iconColor: Color(0xFF2F80ED),
         backgroundColor: Color(0xFFEAF4FF),
+        onTap: onGradesTap,
       ),
       const _FeatureItem(
         label: '\u0110i\u1ec3m danh',

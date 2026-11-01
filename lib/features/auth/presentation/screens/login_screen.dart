@@ -7,7 +7,7 @@ import '../../../../core/storage/token_storage.dart';
 import '../../data/models/login_request.dart';
 import '../../data/models/login_response.dart';
 import '../../data/services/auth_api_service.dart';
-import '../../../home/presentation/screens/student_home_screen.dart';
+import '../../../home/presentation/screens/parent_home_screen.dart';
 import '../widgets/login_input_field.dart';
 import 'forgot_password_screen.dart';
 
@@ -66,6 +66,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await _authService.login(
         LoginRequest(phoneNumber: phone, password: password),
       );
+      if (response.user.role.toUpperCase() != 'PARENT') {
+        throw const ApiException(
+          message: 'Ứng dụng này chỉ dành cho tài khoản phụ huynh.',
+          statusCode: 403,
+        );
+      }
       await _tokenStorage.saveAccessToken(response.accessToken);
       loginResponse = response;
     } on ApiException catch (error) {
@@ -86,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (loginResponse != null && mounted) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const StudentHomeScreen()),
+        MaterialPageRoute<void>(builder: (_) => const ParentHomeScreen()),
       );
     }
   }

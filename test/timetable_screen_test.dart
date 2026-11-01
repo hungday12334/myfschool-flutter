@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:myschoolse1947/core/network/api_client.dart';
-import 'package:myschoolse1947/features/home/presentation/screens/student_home_screen.dart';
+import 'package:myschoolse1947/features/home/presentation/screens/parent_home_screen.dart';
 import 'package:myschoolse1947/features/timetable/data/models/timetable_week.dart';
 import 'package:myschoolse1947/features/timetable/data/services/timetable_api_service.dart';
 import 'package:myschoolse1947/features/timetable/presentation/screens/timetable_screen.dart';
@@ -130,7 +130,7 @@ void main() {
       (weekStart, _) async => _buildWeek(weekStart),
     );
     await tester.pumpWidget(
-      MaterialApp(home: StudentHomeScreen(timetableService: service)),
+      MaterialApp(home: ParentHomeScreen(timetableService: service)),
     );
 
     await tester.tap(find.text('Thời khóa biểu'));

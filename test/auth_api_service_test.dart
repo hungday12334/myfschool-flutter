@@ -34,8 +34,8 @@ void main() {
             'user': <String, dynamic>{
               'id': 1,
               'phoneNumber': '0987654321',
-              'fullName': 'Test Student',
-              'role': 'STUDENT',
+              'fullName': 'Test Parent',
+              'role': 'PARENT',
             },
           },
         }),
@@ -54,8 +54,8 @@ void main() {
 
     expect(response.accessToken, 'signed-jwt');
     expect(response.expiresIn, 3600);
-    expect(response.user.fullName, 'Test Student');
-    expect(response.user.role, 'STUDENT');
+    expect(response.user.fullName, 'Test Parent');
+    expect(response.user.role, 'PARENT');
   });
 
   test('login surfaces the backend error message and status', () async {

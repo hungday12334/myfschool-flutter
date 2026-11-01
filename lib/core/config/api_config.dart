@@ -8,7 +8,8 @@ abstract final class ApiConfig {
       'api/v1/auth/password-reset/verify';
   static const String passwordResetConfirmPath =
       'api/v1/auth/password-reset/confirm';
-  static const String studentTimetablePath = 'api/v1/students/me/timetable';
+  static const String parentTimetablePath = 'api/v1/parents/me/timetable';
+  static const String parentGradesPath = 'api/v1/parents/me/grades';
   static const Duration requestTimeout = Duration(seconds: 12);
 
   static const String _configuredBaseUrl = String.fromEnvironment(
