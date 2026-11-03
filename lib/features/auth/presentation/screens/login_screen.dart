@@ -8,6 +8,7 @@ import '../../data/models/login_request.dart';
 import '../../data/models/login_response.dart';
 import '../../data/services/auth_api_service.dart';
 import '../../../home/presentation/screens/parent_home_screen.dart';
+import '../../../teacher/presentation/screens/teacher_home_screen.dart';
 import '../widgets/login_input_field.dart';
 import 'forgot_password_screen.dart';
 
@@ -66,9 +67,10 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await _authService.login(
         LoginRequest(phoneNumber: phone, password: password),
       );
-      if (response.user.role.toUpperCase() != 'PARENT') {
+      final role = response.user.role.toUpperCase();
+      if (role != 'PARENT' && role != 'TEACHER') {
         throw const ApiException(
-          message: 'Ứng dụng này chỉ dành cho tài khoản phụ huynh.',
+          message: 'Ứng dụng chưa hỗ trợ vai trò tài khoản này.',
           statusCode: 403,
         );
       }
@@ -91,8 +93,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (loginResponse != null && mounted) {
+      final loggedInUser = loginResponse.user;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const ParentHomeScreen()),
+        MaterialPageRoute<void>(
+          builder: (_) => loggedInUser.role.toUpperCase() == 'TEACHER'
+              ? TeacherHomeScreen(user: loggedInUser)
+              : const ParentHomeScreen(),
+        ),
       );
     }
   }
