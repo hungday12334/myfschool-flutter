@@ -27,4 +27,15 @@ public interface TimetableEntryRepository extends JpaRepository<TimetableEntry, 
             LocalDate lessonDate,
             int periodNumber
     );
+
+    @Query("""
+            SELECT entry FROM TimetableEntry entry
+            WHERE LOWER(entry.teacherName) = LOWER(:teacherName)
+              AND entry.lessonDate BETWEEN :startDate AND :endDate
+            ORDER BY entry.lessonDate ASC, entry.startTime ASC
+            """)
+    List<TimetableEntry> findTeacherSchedule(
+            @Param("teacherName") String teacherName,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
 }

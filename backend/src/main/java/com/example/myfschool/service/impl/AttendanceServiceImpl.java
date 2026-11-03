@@ -50,8 +50,10 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         int present = count(records, AttendanceStatus.PRESENT);
         int late = count(records, AttendanceStatus.LATE);
-        int excused = count(records, AttendanceStatus.EXCUSED_ABSENCE);
-        int unexcused = count(records, AttendanceStatus.UNEXCUSED_ABSENCE);
+        int excused = count(records, AttendanceStatus.EXCUSED_ABSENCE)
+                + count(records, AttendanceStatus.EXCUSED);
+        int unexcused = count(records, AttendanceStatus.UNEXCUSED_ABSENCE)
+                + count(records, AttendanceStatus.ABSENT);
         BigDecimal rate = records.isEmpty()
                 ? BigDecimal.ZERO.setScale(1, RoundingMode.HALF_UP)
                 : BigDecimal.valueOf((present + late) * 100L)

@@ -2,6 +2,25 @@
 
 Java 21 / Spring Boot 3.5 REST API for the parent Flutter application. It provides authentication, linked-student timetables, grades, attendance reports, and tuition information using MySQL 8, Spring Data JPA, BCrypt, and stateless HS256 JWT access tokens.
 
+## Teacher API (implemented subset)
+
+All endpoints below require a bearer JWT. Teacher endpoints require `ROLE_TEACHER` and derive the teacher identity from the token. Principal class assignment requires `ROLE_PRINCIPAL`.
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/v1/teacher/me` | Authenticated teacher profile |
+| GET | `/api/v1/teacher/schedule?weekStart=YYYY-MM-DD` | Teaching entries for the requested week (defaults to current week) |
+| GET | `/api/v1/teacher/classes` | Classes assigned to the authenticated teacher with roster count |
+| GET | `/api/v1/teacher/classes/{assignmentId}/students?search=...` | Search assigned class by student name/code |
+| GET | `/api/v1/teacher/classes/{assignmentId}/students/{studentId}` | Student detail, restricted to assigned class |
+| GET | `/api/v1/teacher/classes/{assignmentId}/attendance?date=YYYY-MM-DD` | Class roster with attendance for a date |
+| PUT | `/api/v1/teacher/classes/{assignmentId}/attendance?date=YYYY-MM-DD` | Upsert attendance marks for roster students |
+| POST | `/api/v1/principal/teaching-assignments` | Assign an existing class to a teacher |
+
+Attendance request body is an array of `{ "studentId": 1, "status": "PRESENT", "note": null }`; accepted statuses include `PRESENT`, `ABSENT`, `LATE`, and `EXCUSED` plus the legacy report statuses. Principal assignment body is `{ "teacherId": 1, "className": "10A", "schoolName": "MyFSchool" }`. An assignment can only be created for a teacher account and a class name/school that already has student profiles.
+
+The current schema has no class or subject entities. `StudentProfile.className` and `schoolName` remain the canonical class grouping, and schedule entries store the teacher as free-text `teacherName`. Consequently this API subset does not provide a true teacher-to-subject or teacher-to-schedule foreign-key assignment, and should not be treated as complete school administration functionality.
+
 ## Run locally
 
 Requirements: Java 21, Maven 3.9+, and Docker with Compose.

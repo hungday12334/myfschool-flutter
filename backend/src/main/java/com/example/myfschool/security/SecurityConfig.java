@@ -53,6 +53,12 @@ public class SecurityConfig {
                                 "/api/v1/parents/me/attendance",
                                 "/api/v1/parents/me/tuition"
                         ).hasRole("PARENT")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/teacher/**").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/teacher/**").hasRole("TEACHER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/principal/**").hasRole("PRINCIPAL")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/principal/**").hasRole("PRINCIPAL")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/principal/**").hasRole("PRINCIPAL")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/principal/**").hasRole("PRINCIPAL")
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

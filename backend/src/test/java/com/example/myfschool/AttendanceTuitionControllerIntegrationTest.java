@@ -18,6 +18,7 @@ import com.example.myfschool.repository.GradeAssessmentRepository;
 import com.example.myfschool.repository.PasswordResetCodeRepository;
 import com.example.myfschool.repository.StudentProfileRepository;
 import com.example.myfschool.repository.TimetableEntryRepository;
+import com.example.myfschool.repository.TeacherClassAssignmentRepository;
 import com.example.myfschool.repository.TuitionFeeRepository;
 import com.example.myfschool.repository.UserRepository;
 import com.example.myfschool.service.EmailService;
@@ -61,6 +62,9 @@ class AttendanceTuitionControllerIntegrationTest {
     private GradeAssessmentRepository gradeAssessmentRepository;
     @Autowired
     private TimetableEntryRepository timetableEntryRepository;
+
+    @Autowired
+    private TeacherClassAssignmentRepository teacherClassAssignmentRepository;
     @Autowired
     private PasswordResetCodeRepository passwordResetCodeRepository;
     @Autowired
@@ -244,6 +248,7 @@ class AttendanceTuitionControllerIntegrationTest {
         studentProfileRepository.deleteAll();
         passwordResetCodeRepository.deleteAll();
         timetableEntryRepository.deleteAll();
+        teacherClassAssignmentRepository.deleteAll();
         userRepository.deleteAll();
     }
 

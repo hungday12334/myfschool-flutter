@@ -60,4 +60,11 @@ public class AttendanceRecord {
 
     @Column(length = 500)
     private String note;
+
+    public void update(AttendanceStatus newStatus, String newNote) {
+        this.status = newStatus;
+        this.note = newNote;
+        this.checkInTime = (newStatus == AttendanceStatus.PRESENT || newStatus == AttendanceStatus.LATE)
+                ? LocalTime.now() : null;
+    }
 }

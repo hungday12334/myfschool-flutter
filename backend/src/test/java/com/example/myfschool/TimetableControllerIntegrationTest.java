@@ -12,6 +12,8 @@ import com.example.myfschool.enums.UserRole;
 import com.example.myfschool.enums.UserStatus;
 import com.example.myfschool.repository.PasswordResetCodeRepository;
 import com.example.myfschool.repository.TimetableEntryRepository;
+import com.example.myfschool.repository.TeacherClassAssignmentRepository;
+import com.example.myfschool.repository.StudentProfileRepository;
 import com.example.myfschool.repository.UserRepository;
 import com.example.myfschool.service.EmailService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -48,6 +50,12 @@ class TimetableControllerIntegrationTest {
     private TimetableEntryRepository timetableEntryRepository;
 
     @Autowired
+    private TeacherClassAssignmentRepository teacherClassAssignmentRepository;
+
+    @Autowired
+    private StudentProfileRepository studentProfileRepository;
+
+    @Autowired
     private PasswordResetCodeRepository passwordResetCodeRepository;
 
     @Autowired
@@ -63,6 +71,8 @@ class TimetableControllerIntegrationTest {
     void setUp() {
         passwordResetCodeRepository.deleteAll();
         timetableEntryRepository.deleteAll();
+        teacherClassAssignmentRepository.deleteAll();
+        studentProfileRepository.deleteAll();
         userRepository.deleteAll();
     }
 

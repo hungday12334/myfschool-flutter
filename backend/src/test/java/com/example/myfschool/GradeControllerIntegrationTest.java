@@ -16,6 +16,7 @@ import com.example.myfschool.repository.GradeAssessmentRepository;
 import com.example.myfschool.repository.PasswordResetCodeRepository;
 import com.example.myfschool.repository.StudentProfileRepository;
 import com.example.myfschool.repository.TimetableEntryRepository;
+import com.example.myfschool.repository.TeacherClassAssignmentRepository;
 import com.example.myfschool.repository.UserRepository;
 import com.example.myfschool.service.EmailService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -59,6 +60,9 @@ class GradeControllerIntegrationTest {
 
     @Autowired
     private TimetableEntryRepository timetableEntryRepository;
+
+    @Autowired
+    private TeacherClassAssignmentRepository teacherClassAssignmentRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -220,6 +224,7 @@ class GradeControllerIntegrationTest {
         studentProfileRepository.deleteAll();
         passwordResetCodeRepository.deleteAll();
         timetableEntryRepository.deleteAll();
+        teacherClassAssignmentRepository.deleteAll();
         userRepository.deleteAll();
     }
 
