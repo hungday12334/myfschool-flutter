@@ -79,6 +79,40 @@ class ApiClient {
     return _handleResponse(response);
   }
 
+  Future<Map<String, dynamic>> putJson(
+    String path, {
+    required Object body,
+    Map<String, String>? queryParameters,
+    String? bearerToken,
+  }) async {
+    final uri = _resolveUri(path, queryParameters: queryParameters);
+    late final http.Response response;
+    try {
+      response = await _httpClient
+          .put(
+            uri,
+            headers: <String, String>{
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              if (bearerToken != null && bearerToken.trim().isNotEmpty)
+                'Authorization': 'Bearer ${bearerToken.trim()}',
+            },
+            body: jsonEncode(body),
+          )
+          .timeout(ApiConfig.requestTimeout);
+    } on TimeoutException {
+      throw const ApiException(
+        message: 'Máy chủ phản hồi quá chậm. Vui lòng thử lại.',
+      );
+    } on http.ClientException {
+      throw const ApiException(
+        message:
+            'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.',
+      );
+    }
+    return _handleResponse(response);
+  }
+
   Uri _resolveUri(String path, {Map<String, String>? queryParameters}) {
     final normalizedPath = path.startsWith('/') ? path.substring(1) : path;
     final uri = (_baseUriOverride ?? ApiConfig.baseUri).resolve(normalizedPath);
