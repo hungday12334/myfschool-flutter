@@ -60,12 +60,19 @@ class AuthenticatedUser {
       : _normalizedRole(roles.first);
   bool hasRole(String value) =>
       role == value.toUpperCase() ||
-      roles.any((candidate) => _normalizedRole(candidate) == value.toUpperCase());
+      roles.any(
+        (candidate) => _normalizedRole(candidate) == value.toUpperCase(),
+      );
 
   factory AuthenticatedUser.fromJson(Map<String, dynamic> json) {
     return AuthenticatedUser(
       id: _requiredInt(json, 'id'),
-      username: _firstString(json, const ['username', 'phoneNumber', 'email', 'fullName']),
+      username: _firstString(json, const [
+        'username',
+        'phoneNumber',
+        'email',
+        'fullName',
+      ]),
       phone: json['phone'] as String?,
       email: json['email'] as String?,
       roles: json.containsKey('roles')

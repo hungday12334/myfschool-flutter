@@ -59,13 +59,15 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         _classes = await _service.loadClasses();
         _classId ??= _classes.isEmpty ? null : _classes.first.assignmentId;
         if (_classId != null) {
-          if (_tab == 2)
+          if (_tab == 2) {
             _students = await _service.loadStudents(
               _classId!,
               search: _search.text,
             );
-          if (_tab == 3)
+          }
+          if (_tab == 3) {
             _attendance = await _service.loadAttendance(_classId!, _date);
+          }
         }
       }
     } on ApiException catch (e) {
@@ -104,20 +106,23 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         _date,
         _attendance,
       );
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Đã lưu điểm danh.')));
+      }
     } on ApiException catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message)));
+      }
     } catch (_) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Không thể lưu điểm danh. Vui lòng thử lại.'),
           ),
         );
+      }
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -297,7 +302,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     child: _classes.isEmpty
         ? const Text('Bạn chưa được phân công lớp.')
         : DropdownButtonFormField<int>(
-            value: _classes.any((c) => c.assignmentId == _classId)
+            initialValue: _classes.any((c) => c.assignmentId == _classId)
                 ? _classId
                 : _classes.first.assignmentId,
             decoration: const InputDecoration(
@@ -394,7 +399,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                       ),
                       const SizedBox(height: 8),
                       DropdownButtonFormField<String>(
-                        value: row.status,
+                        initialValue: row.status,
                         decoration: const InputDecoration(
                           labelText: 'Trạng thái',
                           border: OutlineInputBorder(),

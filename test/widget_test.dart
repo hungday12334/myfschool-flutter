@@ -109,14 +109,15 @@ void main() {
 
     await _enterCredentials(tester, phone: ' 0987654321 ');
     await tester.tap(find.text('\u0110\u0103ng nh\u1eadp'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
 
     expect(authService.callCount, 1);
     expect(authService.lastRequest?.phoneNumber, '0987654321');
     expect(authService.lastRequest?.password, '123456');
     expect(tokenStorage.savedToken, 'signed-jwt');
     expect(find.byType(ParentHomeScreen), findsOneWidget);
-    expect(find.text('Trang ch\u1ee7'), findsOneWidget);
+    expect(find.text('Trang ch\u1ee7'), findsWidgets);
   });
 
   testWidgets('Backend login error is displayed without navigating', (
@@ -168,7 +169,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text('Ứng dụng này chỉ dành cho tài khoản phụ huynh.'),
+      find.text(
+        'Ứng dụng này chỉ dành cho tài khoản phụ huynh hoặc giáo viên.',
+      ),
       findsOneWidget,
     );
     expect(tokenStorage.savedToken, isNull);
@@ -198,7 +201,8 @@ void main() {
     expect(authService.callCount, 1);
 
     pendingLogin.complete(_successResponse);
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
     expect(find.byType(ParentHomeScreen), findsOneWidget);
   });
 

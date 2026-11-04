@@ -12,6 +12,7 @@ abstract final class ApiConfig {
   static const String parentGradesPath = 'api/v1/parents/me/grades';
   static const String parentAttendancePath = 'api/v1/parents/me/attendance';
   static const String parentTuitionPath = 'api/v1/parents/me/tuition';
+  static const String parentApiPath = 'api/parent';
   static const Duration requestTimeout = Duration(seconds: 12);
 
   static const String _configuredBaseUrl = String.fromEnvironment(

@@ -138,11 +138,12 @@ class TeacherApiService implements TeacherService {
       _api.getJson(path, queryParameters: query, bearerToken: await _token());
   Future<String> _token() async {
     final token = (await _storage.readAccessToken())?.trim();
-    if (token == null || token.isEmpty)
+    if (token == null || token.isEmpty) {
       throw const ApiException(
         message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
         statusCode: 401,
       );
+    }
     return token;
   }
 

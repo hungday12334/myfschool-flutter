@@ -19,8 +19,9 @@ void main() {
       );
       expect(sentRequest.headers['content-type'], 'application/json');
       expect(jsonDecode(sentRequest.body), <String, dynamic>{
-        'phoneNumber': '0987654321',
+        'username': '0987654321',
         'password': '123456',
+        'source': 'FLUTTER',
       });
 
       return http.Response(

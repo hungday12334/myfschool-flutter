@@ -9,14 +9,21 @@ import '../../data/models/login_response.dart';
 import '../../data/services/auth_api_service.dart';
 import '../../../home/presentation/screens/parent_home_screen.dart';
 import '../../../teacher/presentation/screens/teacher_home_screen.dart';
+import '../../../parent/data/services/parent_notification_service.dart';
 import '../widgets/login_input_field.dart';
 import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({this.authService, this.tokenStorage, super.key});
+  const LoginScreen({
+    this.authService,
+    this.tokenStorage,
+    this.pushTokenSource = const UnavailableParentPushTokenSource(),
+    super.key,
+  });
 
   final AuthService? authService;
   final TokenStorage? tokenStorage;
+  final ParentPushTokenSource pushTokenSource;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -67,9 +74,11 @@ class _LoginScreenState extends State<LoginScreen> {
       final response = await _authService.login(
         LoginRequest(username: username, password: password),
       );
-      if (!response.user.hasRole('PARENT') && !response.user.hasRole('TEACHER')) {
+      if (!response.user.hasRole('PARENT') &&
+          !response.user.hasRole('TEACHER')) {
         throw const ApiException(
-          message: 'Ứng dụng chưa hỗ trợ vai trò tài khoản này.',
+          message:
+              'Ứng dụng này chỉ dành cho tài khoản phụ huynh hoặc giáo viên.',
           statusCode: 403,
         );
       }
@@ -97,7 +106,11 @@ class _LoginScreenState extends State<LoginScreen> {
         MaterialPageRoute<void>(
           builder: (_) => loggedInUser.hasRole('TEACHER')
               ? TeacherHomeScreen(user: loggedInUser)
-              : const ParentHomeScreen(),
+              : ParentHomeScreen(
+                  user: loggedInUser,
+                  tokenStorage: _tokenStorage,
+                  pushTokenSource: widget.pushTokenSource,
+                ),
         ),
       );
     }
