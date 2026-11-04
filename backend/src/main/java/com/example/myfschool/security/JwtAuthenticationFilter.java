@@ -40,13 +40,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = authorization.substring(BEARER_PREFIX.length()).trim();
         try {
-            String phoneNumber = jwtService.extractUsername(token);
-            if (phoneNumber == null || phoneNumber.isBlank()) {
+            String username = jwtService.extractUsername(token);
+            if (username == null || username.isBlank()) {
                 throw new InvalidJwtAuthenticationException("JWT subject is missing");
             }
 
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNumber);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 if (!userDetails.isEnabled() || !userDetails.isAccountNonLocked()
                         || !jwtService.isTokenValid(token, userDetails)) {
                     throw new InvalidJwtAuthenticationException("JWT is not valid for this user");

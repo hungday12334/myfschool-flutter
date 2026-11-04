@@ -49,11 +49,11 @@ Requirements: Java 21, Maven 3.9+, and Docker with Compose.
    mvn spring-boot:run
    ```
 
-   The `dev` profile creates this account once, with a BCrypt hash:
+   The `dev` profile creates the school, parent role, parent profile, and this account once:
 
-   - Phone: `0987654321`
+   - Username: `parent_demo`
    - Email: `parent@myfschool.local`
-   - Password: `123456`
+   - Password: `Password@123`
    - Role/status: `PARENT` / `ACTIVE`
 
    Never enable the `dev` profile in production. Supply a fresh production `JWT_SECRET`, database credentials, an HTTPS deployment, and explicit production CORS origins through `CORS_ALLOWED_ORIGIN_PATTERNS`.
@@ -71,7 +71,7 @@ Login:
 ```powershell
 curl.exe -i -X POST http://localhost:8080/api/v1/auth/login `
   -H "Content-Type: application/json" `
-  -d '{"phoneNumber":"0987654321","password":"123456"}'
+  -d '{"username":"parent_demo","password":"Password@123"}'
 ```
 
 Successful response:
@@ -86,9 +86,12 @@ Successful response:
     "expiresIn": 3600,
     "user": {
       "id": 1,
-      "phoneNumber": "0987654321",
-      "fullName": "Test Parent",
-      "role": "PARENT"
+      "username": "parent_demo",
+      "phone": null,
+      "email": "parent@myfschool.local",
+      "roles": ["PARENT"],
+      "status": "ACTIVE",
+      "mustChangePassword": false
     }
   }
 }
@@ -137,7 +140,7 @@ Invalid credentials return HTTP 401 with a generic response:
 ```json
 {
   "code": 40101,
-  "message": "Invalid phone number or password",
+  "message": "Invalid username or password",
   "data": null
 }
 ```

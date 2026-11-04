@@ -63,8 +63,8 @@ mvn spring-boot:run
 `JWT_SECRET` is required and must be Base64 encoding of at least 32 random bytes. The `dev` profile idempotently creates this local-only account with a BCrypt password hash:
 
 ```text
-Phone:    0987654321
-Password: 123456
+Username: parent_demo
+Password: Password@123
 Role:     PARENT
 Status:   ACTIVE
 ```
@@ -114,7 +114,7 @@ $login = Invoke-RestMethod `
   -Method Post `
   -Uri http://localhost:8080/api/v1/auth/login `
   -ContentType application/json `
-  -Body '{"phoneNumber":"0987654321","password":"123456"}'
+  -Body '{"username":"parent_demo","password":"Password@123"}'
 
 $token = $login.data.accessToken
 Invoke-RestMethod `
@@ -162,7 +162,7 @@ To verify the full flow manually:
 1. Start MySQL and the backend with the `dev` profile.
 2. Confirm the login PowerShell request succeeds.
 3. Start Flutter for the desired target, overriding `API_BASE_URL` for a physical device.
-4. Enter `0987654321` and `123456` in the unchanged login screen.
+4. Enter `parent_demo` and `Password@123` in the login screen.
 5. Confirm the loading state appears, the token is stored, and the app replaces the login route with the parent home screen.
 6. Open `Kết quả`, switch between the two semesters/full year, and open a subject to view its component grades and chart.
 7. Open `Điểm danh` to change months and review attendance details.

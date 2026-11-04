@@ -9,6 +9,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import javax.crypto.SecretKey;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtService {
 
-    private static final String ROLE_CLAIM = "role";
+    private static final String ROLES_CLAIM = "roles";
     private static final String USER_ID_CLAIM = "userId";
 
     private final JwtProperties properties;
@@ -36,16 +37,16 @@ public class JwtService {
         signingKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(User user) {
+    public String generateToken(User user, List<String> roles) {
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plusSeconds(properties.expirationSeconds());
         return Jwts.builder()
-                .subject(user.getPhoneNumber())
+                .subject(user.getUsername())
                 .issuer(properties.issuer())
                 .issuedAt(Date.from(issuedAt))
                 .expiration(Date.from(expiresAt))
                 .claim(USER_ID_CLAIM, user.getId())
-                .claim(ROLE_CLAIM, user.getRole().name())
+                .claim(ROLES_CLAIM, roles)
                 .signWith(signingKey, Jwts.SIG.HS256)
                 .compact();
     }
@@ -61,10 +62,13 @@ public class JwtService {
 
         Jws<Claims> parsedToken = parseClaims(token);
         Claims claims = parsedToken.getPayload();
-        String role = claims.get(ROLE_CLAIM, String.class);
+        List<?> roles = claims.get(ROLES_CLAIM, List.class);
         Number userId = claims.get(USER_ID_CLAIM, Number.class);
-        boolean supportedRole = role != null && userDetails.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("ROLE_" + role));
+        boolean supportedRole = roles != null && roles.stream()
+                .filter(String.class::isInstance)
+                .map(String.class::cast)
+                .anyMatch(role -> userDetails.getAuthorities().stream()
+                        .anyMatch(authority -> authority.getAuthority().equals("ROLE_" + role)));
         return userDetails.getUsername().equals(claims.getSubject())
                 && userId != null
                 && principal.getUserId().longValue() == userId.longValue()

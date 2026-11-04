@@ -28,24 +28,65 @@ class LoginResponse {
 class AuthenticatedUser {
   const AuthenticatedUser({
     required this.id,
-    required this.phoneNumber,
-    required this.fullName,
-    required this.role,
-  });
+    String? username,
+    String? phone,
+    this.email,
+    List<String>? roles,
+    String? phoneNumber,
+    String? fullName,
+    String? role,
+    this.status,
+    this.mustChangePassword = false,
+  }) : username = username ?? phoneNumber ?? '',
+       phone = phone ?? phoneNumber,
+       roles = roles ?? const [],
+       _legacyFullName = fullName,
+       _legacyRole = role;
 
   final int id;
-  final String phoneNumber;
-  final String fullName;
-  final String role;
+  final String username;
+  final String? phone;
+  final String? email;
+  final List<String> roles;
+  final String? status;
+  final bool mustChangePassword;
+  final String? _legacyFullName;
+  final String? _legacyRole;
+
+  String get phoneNumber => phone ?? username;
+  String get fullName => _legacyFullName ?? username;
+  String get role => roles.isEmpty
+      ? _normalizedRole(_legacyRole ?? '')
+      : _normalizedRole(roles.first);
+  bool hasRole(String value) =>
+      role == value.toUpperCase() ||
+      roles.any((candidate) => _normalizedRole(candidate) == value.toUpperCase());
 
   factory AuthenticatedUser.fromJson(Map<String, dynamic> json) {
     return AuthenticatedUser(
       id: _requiredInt(json, 'id'),
-      phoneNumber: _requiredString(json, 'phoneNumber'),
-      fullName: _requiredString(json, 'fullName'),
-      role: _requiredString(json, 'role'),
+      username: _firstString(json, const ['username', 'phoneNumber', 'email', 'fullName']),
+      phone: json['phone'] as String?,
+      email: json['email'] as String?,
+      roles: json.containsKey('roles')
+          ? _stringList(json['roles'])
+          : <String>[_requiredString(json, 'role')],
+      fullName: json['fullName'] as String?,
+      status: json['status'] as String?,
+      mustChangePassword: json['mustChangePassword'] == true,
     );
   }
+}
+
+String _normalizedRole(String role) =>
+    role.toUpperCase().replaceFirst(RegExp(r'^ROLE_'), '');
+
+List<String> _stringList(Object? value) {
+  if (value is List) {
+    return value.whereType<String>().toList(growable: false);
+  }
+  if (value is String) return [value]; // Older API response compatibility.
+  throw const FormatException('Missing or invalid field: roles');
 }
 
 Map<String, dynamic> _asStringKeyedMap(
@@ -67,6 +108,14 @@ String _requiredString(Map<String, dynamic> json, String fieldName) {
     return value;
   }
   throw FormatException('Missing or invalid field: $fieldName');
+}
+
+String _firstString(Map<String, dynamic> json, List<String> fields) {
+  for (final field in fields) {
+    final value = json[field];
+    if (value is String && value.isNotEmpty) return value;
+  }
+  throw FormatException('Missing or invalid field: ${fields.first}');
 }
 
 int _requiredInt(Map<String, dynamic> json, String fieldName) {

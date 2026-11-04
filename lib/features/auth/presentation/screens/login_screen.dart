@@ -23,7 +23,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   late final AuthService _authService;
@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_ownsAuthService && authService is AuthApiService) {
       authService.close();
     }
-    _phoneController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final phone = _phoneController.text.trim();
+    final username = _usernameController.text.trim();
     final password = _passwordController.text;
     FocusScope.of(context).unfocus();
     setState(() {
@@ -65,10 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
     LoginResponse? loginResponse;
     try {
       final response = await _authService.login(
-        LoginRequest(phoneNumber: phone, password: password),
+        LoginRequest(username: username, password: password),
       );
-      final role = response.user.role.toUpperCase();
-      if (role != 'PARENT' && role != 'TEACHER') {
+      if (!response.user.hasRole('PARENT') && !response.user.hasRole('TEACHER')) {
         throw const ApiException(
           message: 'Ứng dụng chưa hỗ trợ vai trò tài khoản này.',
           statusCode: 403,
@@ -96,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final loggedInUser = loginResponse.user;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
-          builder: (_) => loggedInUser.role.toUpperCase() == 'TEACHER'
+          builder: (_) => loggedInUser.hasRole('TEACHER')
               ? TeacherHomeScreen(user: loggedInUser)
               : const ParentHomeScreen(),
         ),
@@ -170,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const _BrandHeader(),
                     SizedBox(height: screenHeight * 0.12),
                     _LoginPanel(
-                      phoneController: _phoneController,
+                      usernameController: _usernameController,
                       passwordController: _passwordController,
                       onLogin: _handleLogin,
                       onForgotPassword: _openForgotPassword,
@@ -250,14 +249,14 @@ class _BrandHeader extends StatelessWidget {
 
 class _LoginPanel extends StatefulWidget {
   const _LoginPanel({
-    required this.phoneController,
+    required this.usernameController,
     required this.passwordController,
     required this.onLogin,
     required this.onForgotPassword,
     required this.isLoading,
   });
 
-  final TextEditingController phoneController;
+  final TextEditingController usernameController;
   final TextEditingController passwordController;
   final VoidCallback onLogin;
   final VoidCallback onForgotPassword;
@@ -299,10 +298,10 @@ class _LoginPanelState extends State<_LoginPanel> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           LoginInputField(
-            controller: widget.phoneController,
-            hintText: 'S\u1ed1 \u0111i\u1ec7n tho\u1ea1i',
-            prefixIcon: Icons.phone_outlined,
-            keyboardType: TextInputType.phone,
+            controller: widget.usernameController,
+            hintText: 'Số điện thoại',
+            prefixIcon: Icons.person_outline,
+            keyboardType: TextInputType.text,
           ),
           const SizedBox(height: 18),
           LoginInputField(
