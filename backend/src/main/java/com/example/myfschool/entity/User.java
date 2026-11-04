@@ -1,99 +1,37 @@
 package com.example.myfschool.entity;
 
-import com.example.myfschool.enums.UserRole;
-import com.example.myfschool.enums.UserStatus;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.Locale;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.example.myfschool.enums.*;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(
-        name = "users",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "uk_users_phone_number", columnNames = "phone_number"),
-                @UniqueConstraint(name = "uk_users_email", columnNames = "email")
-        }
-)
+@Table(name="users", uniqueConstraints={@UniqueConstraint(name="uk_user_username", columnNames={"username"})}, indexes={@Index(name="idx_user_school_status", columnList="school_id,status")})
 @Getter
-@Builder
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "phone_number", nullable = false, unique = true, length = 20)
-    private String phoneNumber;
-
-    // Nullable so Hibernate can safely add the column to databases that already contain users.
-    @Column(unique = true, length = 320)
+@Setter
+@NoArgsConstructor
+public class User extends BaseEntity {
+    @ManyToOne(fetch=FetchType.LAZY, optional=false)
+    @JoinColumn(name="school_id", nullable=false)
+    private School school;
+    @Column(name="username", nullable=false, length=100)
+    private String username;
+    @Column(name="password_hash", nullable=false, length=255)
+    private String passwordHash;
+    @Column(name="phone", length=20)
+    private String phone;
+    @Column(name="email", length=255)
     private String email;
-
-    @Column(nullable = false, length = 255)
-    private String password;
-
-    @Column(name = "full_name", nullable = false, length = 255)
-    private String fullName;
-
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private UserRole role;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(name="status", nullable=false)
     private UserStatus status;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    void onCreate() {
-        normalizeEmail();
-        LocalDateTime now = LocalDateTime.now(ZoneOffset.UTC);
-        createdAt = now;
-        updatedAt = now;
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        normalizeEmail();
-        updatedAt = LocalDateTime.now(ZoneOffset.UTC);
-    }
-
-    private void normalizeEmail() {
-        if (email == null) {
-            return;
-        }
-        String normalized = email.trim().toLowerCase(Locale.ROOT);
-        email = normalized.isEmpty() ? null : normalized;
-    }
-
-    public void changePassword(String encodedPassword) {
-        this.password = encodedPassword;
-    }
-
-    public void changeRole(UserRole newRole) {
-        this.role = newRole;
-    }
+    @Column(name="must_change_password", nullable=false)
+    private boolean mustChangePassword;
+    @Column(name="last_login_at", insertable=false, updatable=false)
+    private java.time.LocalDateTime lastLoginAt;
+    @Column(name="created_at", nullable=false, insertable=false, updatable=false)
+    private java.time.LocalDateTime createdAt;
+    @Column(name="updated_at", nullable=false, insertable=false, updatable=false)
+    private java.time.LocalDateTime updatedAt;
 }

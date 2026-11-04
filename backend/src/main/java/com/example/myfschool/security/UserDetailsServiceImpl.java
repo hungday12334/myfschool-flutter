@@ -1,7 +1,6 @@
 package com.example.myfschool.security;
 
 import com.example.myfschool.entity.User;
-import com.example.myfschool.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -10,12 +10,7 @@ import com.example.myfschool.enums.AssessmentType;
 import com.example.myfschool.enums.AttendanceStatus;
 import com.example.myfschool.enums.UserRole;
 import com.example.myfschool.enums.UserStatus;
-import com.example.myfschool.repository.AttendanceRecordRepository;
-import com.example.myfschool.repository.GradeAssessmentRepository;
-import com.example.myfschool.repository.StudentProfileRepository;
-import com.example.myfschool.repository.TimetableEntryRepository;
-import com.example.myfschool.repository.TuitionFeeRepository;
-import com.example.myfschool.repository.UserRepository;
+
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
