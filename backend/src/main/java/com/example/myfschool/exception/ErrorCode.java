@@ -15,6 +15,7 @@ public enum ErrorCode {
     PASSWORDS_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, 40004, "Passwords do not match"),
     EMAIL_DELIVERY_FAILED(HttpStatus.SERVICE_UNAVAILABLE, 50301, "Unable to send reset email"),
     RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, 40401, "Resource not found"),
+    RESOURCE_CONFLICT(HttpStatus.CONFLICT, 40901, "Business conflict"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, 50000, "An unexpected error occurred"),
     UNSUCCESS_SENDING_SMS(HttpStatus.BAD_REQUEST, 40103, "Send Email Unsuccessfully");
     ;

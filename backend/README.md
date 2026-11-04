@@ -174,3 +174,32 @@ The documented variables are listed in `.env.example`. The application never emb
 Password-reset email delivery uses the `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`, `MAIL_SMTP_AUTH`, and `MAIL_STARTTLS_ENABLE` variables. The local defaults expect a development SMTP server on port 1025; production must provide a real SMTP account and TLS settings.
 
 The phone contract currently accepts exactly 10 decimal digits starting with `0`, matching the supplied development account.
+
+## Parent APIs (UC71–UC88)
+
+All routes below require a JWT with the `PARENT` role. Student IDs are checked against `parent_students` and the parent/student school IDs before data is returned or changed. The response uses the existing `{code,message,data}` envelope. Large attendance, announcement, and leave history responses use `data.content`, `page`, `size`, `totalElements`, and `totalPages`.
+
+| Method | Route | Use case |
+|---|---|---|
+| GET | `/api/parent/dashboard?studentId={id}` | UC71 dashboard (omitted student chooses the first linked child by name) |
+| GET | `/api/parent/children` | UC72 linked children |
+| GET | `/api/parent/children/{studentId}/context` | UC73 child context |
+| GET | `/api/parent/children/{studentId}` | UC74 student profile |
+| GET | `/api/parent/children/{studentId}/class` | UC75 class and homeroom teacher |
+| GET | `/api/parent/children/{studentId}/timetable?academicYearId={id}&semesterId={id}` | UC76 timetable |
+| GET | `/api/parent/children/{studentId}/academic-results?academicYearId={id}&semesterId={id}` | UC77 results by subject |
+| GET | `/api/parent/children/{studentId}/subjects/{subjectId}/grades?semesterId={id}` | UC78 subject grades |
+| GET | `/api/parent/children/{studentId}/evaluations?academicYearId={id}&semesterId={id}&page=0&size=20` | UC79 public remarks and evaluations |
+| GET | `/api/parent/children/{studentId}/attendance?from=YYYY-MM-DD&to=YYYY-MM-DD&page=0&size=20` | UC80 attendance history |
+| GET | `/api/parent/children/{studentId}/attendance/summary?academicYearId={id}&semesterId={id}` | UC81 attendance totals |
+| GET | `/api/parent/announcements?page=0&size=20` | UC82 visible announcements |
+| GET | `/api/parent/announcements/{announcementId}` | UC83 announcement detail |
+| POST | `/api/parent/announcements/{announcementId}/read` | UC84 idempotent read marker |
+| POST / DELETE | `/api/parent/devices` | UC85 register or deactivate own push token |
+| POST | `/api/parent/children/{studentId}/leave-requests` | UC86 create pending leave request |
+| GET | `/api/parent/leave-requests/{requestId}` | UC87 track own request |
+| GET | `/api/parent/children/{studentId}/leave-requests?page=0&size=20&status=PENDING` | UC88 own requests for a child |
+
+Device registration body: `{"token":"<provider-token>","platform":"ANDROID","deviceName":"Phone"}`. Removal body: `{"token":"<provider-token>"}`. Leave request body: `{"startDate":"2026-11-10","endDate":"2026-11-11","reason":"Học sinh bị ốm"}`.
+
+No Firebase or other push delivery provider is configured in this repository. Device endpoints only register/deactivate tokens; they do not send notifications. To enable delivery, configure a provider SDK and secret through deployment-managed credentials, then implement its adapter behind a push service. The current schema has no attachment table or grade publication flag; these APIs therefore omit attachments and return stored grades without claiming publication-state filtering. Avatar and class period clock times are also not stored in the current model.

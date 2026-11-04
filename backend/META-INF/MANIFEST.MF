@@ -1,0 +1,49 @@
+Manifest-Version: 1.0
+Build-Date: 2025-04-11
+Build-Revision: 0a446598f2b90bb0f52f1945f08755b430ec474b
+Build-Time: 16:09:45.376+0200
+Built-By: JUnit Team
+Bundle-ManifestVersion: 2
+Bundle-Name: JUnit Platform Launcher
+Bundle-SymbolicName: junit-platform-launcher
+Bundle-Version: 1.12.2
+Created-By: 21.0.6 (Eclipse Adoptium 21.0.6+7-LTS)
+Export-Package: org.junit.platform.launcher;version="1.12.2";status=ST
+ ABLE;uses:="org.apiguardian.api,org.junit.platform.commons,org.junit.
+ platform.engine,org.junit.platform.engine.reporting",org.junit.platfo
+ rm.launcher.core;version="1.12.2";status=STABLE;uses:="org.apiguardia
+ n.api,org.junit.platform.commons,org.junit.platform.engine,org.junit.
+ platform.engine.reporting,org.junit.platform.launcher",org.junit.plat
+ form.launcher.listeners;version="1.12.2";status=STABLE;uses:="org.api
+ guardian.api,org.junit.platform.engine,org.junit.platform.launcher",o
+ rg.junit.platform.launcher.listeners.discovery;version="1.12.2";statu
+ s=STABLE;uses:="org.apiguardian.api,org.junit.platform.launcher",org.
+ junit.platform.launcher.listeners.session;version="1.12.2";status=INT
+ ERNAL;mandatory:=status;uses:="org.apiguardian.api,org.junit.platform
+ .launcher",org.junit.platform.launcher.tagexpression;version="1.12.2"
+ ;status=INTERNAL;mandatory:=status;uses:="org.apiguardian.api,org.jun
+ it.platform.engine"
+Implementation-Title: junit-platform-launcher
+Implementation-Vendor: junit.org
+Implementation-Version: 1.12.2
+Import-Package: org.apiguardian.api;resolution:=optional;version="[1.1
+ ,2)",org.junit.platform.commons.logging;status=INTERNAL;version="[1.1
+ 2,2)",java.io,java.lang,java.lang.invoke,java.lang.reflect,java.net,j
+ ava.nio.charset,java.nio.file,java.nio.file.attribute,java.security,j
+ ava.time,java.util,java.util.concurrent,java.util.concurrent.atomic,j
+ ava.util.function,java.util.logging,java.util.regex,java.util.stream,
+ org.junit.platform.commons;version="[1.12,2)",org.junit.platform.comm
+ ons.support;version="[1.12,2)",org.junit.platform.commons.util;versio
+ n="[1.12,2)",org.junit.platform.engine;version="[1.12,2)",org.junit.p
+ latform.engine.discovery;version="[1.12,2)",org.junit.platform.engine
+ .reporting;version="[1.12,2)",org.junit.platform.engine.support.descr
+ iptor;version="[1.12,2)",org.junit.platform.launcher;version="[1.12,2
+ )",org.junit.platform.launcher.listeners;version="[1.12,2)",org.junit
+ .platform.launcher.listeners.discovery;version="[1.12,2)"
+Provide-Capability: org.junit.platform.launcher;org.junit.platform.lau
+ ncher=junit-platform-launcher;version:Version="1.12.2"
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+Specification-Title: junit-platform-launcher
+Specification-Vendor: junit.org
+Specification-Version: 1.12.2
+

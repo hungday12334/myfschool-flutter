@@ -47,12 +47,14 @@ public class SecurityConfig {
                                 "/api/v1/auth/password-reset/confirm"
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET,
+                                "/api/parent/**",
                                 "/api/v1/parents/me/timetable",
                                 "/api/v1/parents/me/grades",
                                 "/api/v1/parents/me/grades/**",
                                 "/api/v1/parents/me/attendance",
                                 "/api/v1/parents/me/tuition"
                         ).hasRole("PARENT")
+                        .requestMatchers("/api/parent/**").hasRole("PARENT")
                         .requestMatchers(HttpMethod.GET, "/api/v1/teacher/**").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/teacher/**").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/principal/**").hasRole("PRINCIPAL")
