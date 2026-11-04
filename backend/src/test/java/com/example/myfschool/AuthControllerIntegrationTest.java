@@ -17,6 +17,7 @@ import com.example.myfschool.enums.UserRole;
 import com.example.myfschool.enums.UserStatus;
 import com.example.myfschool.exception.BusinessException;
 import com.example.myfschool.exception.ErrorCode;
+import com.example.myfschool.service.EmailService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
