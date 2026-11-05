@@ -55,6 +55,7 @@ public class SecurityConfig {
                                 "/api/v1/parents/me/attendance",
                                 "/api/v1/parents/me/tuition"
                         ).hasRole("PARENT")
+                        .requestMatchers("/api/admin-school/**").hasRole("SCHOOL_ADMIN")
                         .requestMatchers("/api/parent/**").hasRole("PARENT")
                         .requestMatchers("/api/teacher/**", "/api/v1/teacher/**").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/principal/**").hasRole("PRINCIPAL")
