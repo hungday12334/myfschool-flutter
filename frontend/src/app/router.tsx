@@ -9,6 +9,7 @@ import { ForgotPasswordPage } from "../features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "../features/auth/pages/ResetPasswordPage";
 import { RoleHome, StatusPage } from "./pages";
 import { Loading } from "../shared/components/ui";
+import { AttendancePage } from "../features/teacher/attendance/AttendancePage";
 function Index() {
   const auth = useAuth();
   return auth.status === "restoring" ? (
@@ -32,6 +33,9 @@ export function AppRoutes() {
         <Route key={role} element={<Protected role={role} />}>
           <Route element={<AppLayout />}>
             <Route path={path} element={<RoleHome role={role} />} />
+            {role === "TEACHER" && (
+              <Route path="/teacher/attendance" element={<AttendancePage />} />
+            )}
           </Route>
         </Route>
       ))}

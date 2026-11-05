@@ -13,6 +13,12 @@ export function AppLayout() {
         <Brand />
         <span className="nav-label">KHÔNG GIAN LÀM VIỆC</span>
         <nav>
+          {auth.user?.roles.includes("TEACHER") && (
+            <NavLink to="/teacher/attendance">
+              <LayoutDashboard size={18} />
+              Điểm danh học sinh
+            </NavLink>
+          )}
           {auth.user?.roles
             .filter((r) => roleHomes[r])
             .map((r) => (

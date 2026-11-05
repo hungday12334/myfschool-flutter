@@ -1,4 +1,93 @@
 @import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;450;500;550;600;650;700;750&display=swap");
+.attendance {
+  display: grid;
+  gap: 22px;
+}
+.attendance > h1,
+.attendance > p {
+  margin: 0;
+}
+.attendance-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  align-items: end;
+}
+.attendance-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+.attendance-form .field {
+  margin: 0;
+}
+.attendance select,
+.attendance td input {
+  font: inherit;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: white;
+  color: var(--text);
+  width: 100%;
+  min-width: 150px;
+}
+.attendance select:focus-visible,
+.attendance input:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.table-scroll {
+  overflow: auto;
+  margin: 20px 0;
+}
+.attendance table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.attendance th,
+.attendance td {
+  padding: 13px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-soft);
+}
+.attendance th {
+  background: var(--surface-tint);
+  white-space: nowrap;
+}
+.attendance td .text-button {
+  margin: 0;
+  white-space: nowrap;
+}
+.attendance-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.attendance-actions .button {
+  width: auto;
+  margin: 0;
+}
+.attendance fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.attendance-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 18px;
+  background: var(--surface-tint);
+  margin-top: 20px;
+  border-radius: 8px;
+}
+.attendance-stats small {
+  width: 100%;
+}
 :root {
   /* Orange school identity; use the darker primary for accessible white labels. */
   --brand: #f37021;
