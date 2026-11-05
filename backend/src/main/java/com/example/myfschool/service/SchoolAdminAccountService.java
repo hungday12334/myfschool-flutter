@@ -22,6 +22,7 @@ public class SchoolAdminAccountService {
     private final EntityManager em;
     private final PasswordEncoder encoder;
     private final Validator validator;
+    private final SchoolAdminAuditService audit;
     public User admin(Long uid) {
         User u=em.find(User.class,uid);
         if(u==null || u.getStatus()!=UserStatus.ACTIVE || u.getSchool().getStatus()!=SchoolStatus.ACTIVE
@@ -48,7 +49,7 @@ public class SchoolAdminAccountService {
         Role role=em.createQuery("select r from Role r where r.code='TEACHER'",Role.class).getResultStream().findFirst().orElseThrow(()->new BusinessException(ErrorCode.RESOURCE_NOT_FOUND));
         User u=new User(); u.setSchool(a.getSchool());u.setUsername(r.username());u.setPasswordHash(encoder.encode(r.password()));u.setEmail(r.email());u.setPhone(r.phone());u.setStatus(UserStatus.ACTIVE);u.setMustChangePassword(true);em.persist(u);
         Teacher t=new Teacher();t.setSchool(a.getSchool());t.setUser(u);t.setTeacherCode(r.teacherCode().trim());t.setFullName(r.fullName().trim());t.setEmail(r.email());t.setPhone(r.phone());t.setStatus(TeacherStatus.ACTIVE);em.persist(t);
-        UserRole ur=new UserRole();ur.setUser(u);ur.setRole(role);em.persist(ur);em.flush();return view(u);
+        UserRole ur=new UserRole();ur.setUser(u);ur.setRole(role);em.persist(ur);em.flush();audit.record(a,"CREATE_TEACHER_ACCOUNT","User",u.getId());return view(u);
     }
     public Page<Account> list(Long uid,String q,UserStatus status,int page,int size) {
         User a=admin(uid);page(page,size);String key=q==null?"":q.trim().toLowerCase(Locale.ROOT);if(key.length()>100)fail(ErrorCode.INVALID_REQUEST);
@@ -58,19 +59,19 @@ public class SchoolAdminAccountService {
         return new PageImpl<>(query.setFirstResult(page*size).setMaxResults(size).getResultList().stream().map(this::view).toList(),PageRequest.of(page,size),count.getSingleResult());
     }
     @Transactional public Account update(Long uid,Long id,UpdateAccount r) {
-        User u=target(admin(uid),id);u.setEmail(r.email());u.setPhone(r.phone());
+        User a=admin(uid);User u=target(a,id);audit.record(a,"UPDATE_ACCOUNT","User",id);u.setEmail(r.email());u.setPhone(r.phone());
         var ts=em.createQuery("select t from Teacher t where t.user.id=:u",Teacher.class).setParameter("u",id).getResultList();
         for(Teacher t:ts){t.setEmail(r.email());t.setPhone(r.phone());if(r.fullName()!=null){if(r.fullName().isBlank())fail(ErrorCode.INVALID_REQUEST);t.setFullName(r.fullName().trim());}}
         return view(u);
     }
     @Transactional public Account status(Long uid,Long id,UserStatus status) {
-        User u=target(admin(uid),id);if(uid.equals(id))fail(ErrorCode.RESOURCE_CONFLICT);u.setStatus(status);return view(u);
+        User a=admin(uid);User u=target(a,id);if(uid.equals(id))fail(ErrorCode.RESOURCE_CONFLICT);u.setStatus(status);audit.record(a,"CHANGE_ACCOUNT_STATUS","User",id);return view(u);
     }
     @Transactional public void reset(Long uid,Long id,String password) {
-        User u=target(admin(uid),id);if(password.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>72)fail(ErrorCode.INVALID_REQUEST);u.setPasswordHash(encoder.encode(password));u.setMustChangePassword(true);
+        User a=admin(uid);User u=target(a,id);if(password.getBytes(java.nio.charset.StandardCharsets.UTF_8).length>72)fail(ErrorCode.INVALID_REQUEST);u.setPasswordHash(encoder.encode(password));u.setMustChangePassword(true);audit.record(a,"RESET_PASSWORD","User",id);
     }
     @Transactional public Account roles(Long uid,Long id,Set<String> codes) {
-        User u=target(admin(uid),id);if(uid.equals(id))fail(ErrorCode.RESOURCE_CONFLICT);
+        User a=admin(uid);User u=target(a,id);if(uid.equals(id))fail(ErrorCode.RESOURCE_CONFLICT);audit.record(a,"CHANGE_ROLES","User",id);
         if(!Set.of("TEACHER","PARENT","STUDENT","SCHOOL_ADMIN").containsAll(codes))fail(ErrorCode.INVALID_REQUEST);
         for(String code:codes) {
             String entity=switch(code){case "TEACHER"->"Teacher";case "PARENT"->"Parent";case "STUDENT"->"Student";default->null;};

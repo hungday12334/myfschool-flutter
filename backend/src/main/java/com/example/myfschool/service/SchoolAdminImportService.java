@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class SchoolAdminImportService {
     private final SchoolAdminAccountService accounts;
     private final SchoolAdminSchoolService schoolService;
+    private final SchoolAdminAuditService audit;
     private final EntityManager em;
     private final TransactionTemplate tx;
     public record Result(Long id,String fileName,ImportStatus status,int totalRows,int successRows,int failedRows) {}
@@ -53,7 +54,7 @@ public class SchoolAdminImportService {
         if(rows.isEmpty())throw new BusinessException(ErrorCode.INVALID_REQUEST);
         final String checksum;
         try{checksum=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));}catch(Exception e){throw new IllegalStateException(e);}
-        Long id=tx.execute(s->{User a=accounts.admin(uid);ImportBatch b=new ImportBatch();b.setSchool(a.getSchool());b.setImportedBy(a);b.setImportType(students?ImportType.STUDENT:ImportType.TEACHER);String n=file.getOriginalFilename();b.setFileName(n==null?"accounts.xlsx":n.substring(Math.max(0,n.length()-255)));b.setFileChecksum(checksum);b.setTotalRows(rows.size());b.setStatus(ImportStatus.PROCESSING);em.persist(b);em.flush();em.createNativeQuery("update import_batches set started_at=:now where id=:id").setParameter("now",LocalDateTime.now()).setParameter("id",b.getId()).executeUpdate();return b.getId();});
+        Long id=tx.execute(s->{User a=accounts.admin(uid);ImportBatch b=new ImportBatch();b.setSchool(a.getSchool());b.setImportedBy(a);b.setImportType(students?ImportType.STUDENT:ImportType.TEACHER);String n=file.getOriginalFilename();b.setFileName(n==null?"accounts.xlsx":n.substring(Math.max(0,n.length()-255)));b.setFileChecksum(checksum);b.setTotalRows(rows.size());b.setStatus(ImportStatus.PROCESSING);em.persist(b);em.flush();em.createNativeQuery("update import_batches set started_at=:now where id=:id").setParameter("now",LocalDateTime.now()).setParameter("id",b.getId()).executeUpdate();audit.record(a,"START_IMPORT","ImportBatch",b.getId());return b.getId();});
         for(int i=0;i<rows.size();i++) {
             final int number=i+2;final String[] row=rows.get(i);
             // One transaction per row: an invalid row cannot roll back other accounts.
@@ -61,7 +62,7 @@ public class SchoolAdminImportService {
             catch(Exception ex){final String code=ex instanceof BusinessException?"INVALID_OR_DUPLICATE_ACCOUNT":"ROW_PERSISTENCE_FAILED";
                 tx.executeWithoutResult(s->{ImportBatch b=em.find(ImportBatch.class,id);b.setFailedRows(b.getFailedRows()+1);ImportError e=new ImportError();e.setBatch(b);e.setRowNumber(number);e.setErrorCode(students?"INVALID_OR_DUPLICATE_STUDENT":code);e.setErrorMessage(students?"Student row rejected; check required fields, unique studentCode, ISO dates and enum values":"Account row rejected; check required fields, unique username/teacherCode and field limits");em.persist(e);});}
         }
-        return tx.execute(s->{ImportBatch b=em.find(ImportBatch.class,id);b.setStatus(b.getFailedRows()==0?ImportStatus.COMPLETED:b.getSuccessRows()==0?ImportStatus.FAILED:ImportStatus.PARTIAL);em.flush();em.createNativeQuery("update import_batches set finished_at=:now where id=:id").setParameter("now",LocalDateTime.now()).setParameter("id",id).executeUpdate();return result(b);});
+        return tx.execute(s->{ImportBatch b=em.find(ImportBatch.class,id);b.setStatus(b.getFailedRows()==0?ImportStatus.COMPLETED:b.getSuccessRows()==0?ImportStatus.FAILED:ImportStatus.PARTIAL);em.flush();em.createNativeQuery("update import_batches set finished_at=:now where id=:id").setParameter("now",LocalDateTime.now()).setParameter("id",id).executeUpdate();audit.record(accounts.admin(uid),"FINISH_IMPORT","ImportBatch",id);return result(b);});
     }
     private ImportBatch batch(Long uid,Long id){User a=accounts.admin(uid);ImportBatch b=em.find(ImportBatch.class,id);if(b==null)throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND);if(!b.getSchool().getId().equals(a.getSchool().getId()))throw new BusinessException(ErrorCode.ACCESS_DENIED);return b;}
     public Result get(Long uid,Long id){return tx.execute(s->result(batch(uid,id)));}

@@ -19,7 +19,7 @@ public class SchoolAdminSchoolController {
     private final SchoolAdminSchoolService service;
     private final SchoolAdminImportService imports;
     private ApiResponse<?> ok(Object data){return ApiResponse.success("Success",data);}
-    @GetMapping("/{resource:teachers|students|parents|academic-years|semesters|subjects|classes|teaching-assignments}")
+    @GetMapping("/{resource:teachers|students|parents|academic-years|semesters|subjects|classes}")
     public ApiResponse<?> list(@AuthenticationPrincipal AuthenticatedUserPrincipal p,@PathVariable String resource,@RequestParam(required=false) String keyword,@RequestParam(required=false) Long academicYearId,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="20") int size){return ok(service.list(p.getUserId(),resource,keyword,academicYearId,page,size));}
     @GetMapping("/{resource:teachers|students|parents|academic-years|semesters|subjects|classes|teaching-assignments}/{id}")
     public ApiResponse<?> get(@AuthenticationPrincipal AuthenticatedUserPrincipal p,@PathVariable String resource,@PathVariable Long id){return ok(service.get(p.getUserId(),resource,id));}
