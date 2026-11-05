@@ -50,10 +50,15 @@ public class AuthServiceImpl implements com.example.myfschool.service.AuthServic
     @Override
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
-        User user = null;
+        User user;
         if("FLUTTER".equalsIgnoreCase(request.source())){
             user = users.findByPhone(request.username().trim())
                     .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_CREDENTIALS));
+        } else if ("WEB".equalsIgnoreCase(request.source())) {
+            user = users.findByUsername(request.username().trim())
+                    .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_CREDENTIALS));
+        } else {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
         }
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
             throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
@@ -108,6 +113,9 @@ public class AuthServiceImpl implements com.example.myfschool.service.AuthServic
     @Override
     @Transactional
     public void confirmPasswordReset(PasswordResetConfirmRequest request) {
+        if (request.newPassword().getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST);
+        }
         if (!request.newPassword().equals(request.confirmPassword())) {
             throw new BusinessException(ErrorCode.PASSWORDS_DO_NOT_MATCH);
         }
