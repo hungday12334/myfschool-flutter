@@ -18,6 +18,24 @@ import org.springframework.web.bind.annotation.*;
 public class TeacherContextController {
     private final TeacherService service;
 
+    @GetMapping("/homeroom/classes")
+    public ApiResponse<List<ClassInfo>> homeroom(@AuthenticationPrincipal AuthenticatedUserPrincipal p,
+            @RequestParam(required = false) Long academicYearId) {
+        return ApiResponse.success("Homeroom classes", service.homeroom(p.getUserId(), academicYearId));
+    }
+
+    @GetMapping("/students/{studentId}/parents")
+    public ApiResponse<List<ParentContact>> parents(@AuthenticationPrincipal AuthenticatedUserPrincipal p,
+            @PathVariable Long studentId) {
+        return ApiResponse.success("Parent contacts", service.parents(p.getUserId(), studentId));
+    }
+
+    @GetMapping("/activities")
+    public ApiResponse<Activity> activities(@AuthenticationPrincipal AuthenticatedUserPrincipal p,
+            @RequestParam(required = false) LocalDate from, @RequestParam(required = false) LocalDate to) {
+        return ApiResponse.success("Teaching activities", service.activities(p.getUserId(), from, to));
+    }
+
     @GetMapping("/dashboard")
     public ApiResponse<Dashboard> dashboard(@AuthenticationPrincipal AuthenticatedUserPrincipal p,
             @RequestParam(required = false) Long academicYearId) {

@@ -87,9 +87,7 @@ class TeacherAttendanceIntegrationTest extends TeacherIntegrationSupport {
 
     @Test void summaryDoesNotMultiplyRecordsAndIncludesHomeroomSessions() {
         // A second historical enrollment row must not multiply attendance aggregate joins.
-        ClassEnrollment duplicateEnrollment = new ClassEnrollment();
-        duplicateEnrollment.setSchoolClass(schoolClass); duplicateEnrollment.setStudent(student);
-        duplicateEnrollment.setStatus(EnrollmentStatus.ACTIVE); persist(duplicateEnrollment); em.flush();
+        jdbc.update("insert into class_enrollments(class_id,student_id,enrolled_at,status) values (?,?,?,?)",schoolClass.getId(),student.getId(),java.sql.Date.valueOf(year.getStartDate().plusDays(1)),EnrollmentStatus.ACTIVE.name());
         var first=attendance.create(teacherUser.getId(),subjectSession());
         var second=attendance.create(teacherUser.getId(),homeroomSession());
         attendance.mark(teacherUser.getId(),first.session().id(),new MarkBatch(List.of(new Mark(student.getId(),AttendanceStatus.PRESENT,null),new Mark(secondStudent.getId(),AttendanceStatus.ABSENT,null))));

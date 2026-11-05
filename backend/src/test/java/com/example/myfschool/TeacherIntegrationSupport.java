@@ -70,5 +70,5 @@ public abstract class TeacherIntegrationSupport {
     protected SchoolClass clazz(String name,Teacher home) {SchoolClass c=new SchoolClass();c.setSchool(school);c.setAcademicYear(year);c.setClassName(name+suffix);c.setGradeLevel(10);c.setHomeroomTeacher(home);c.setStatus(SchoolClassStatus.ACTIVE);return persist(c);}
     protected TeachingAssignment assignment(Teacher t) {TeachingAssignment a=new TeachingAssignment();a.setSchoolClass(schoolClass);a.setTeacher(t);a.setSubject(subject);a.setSemester(semester);a.setStatus(ActiveStatus.ACTIVE);return persist(a);}
     protected Student student(School s,String name) {Student st=new Student();st.setSchool(s);st.setStudentCode(name+suffix);st.setFullName(name);st.setStatus(StudentStatus.ACTIVE);return persist(st);}
-    protected void enroll(Student s) {ClassEnrollment e=new ClassEnrollment();e.setSchoolClass(schoolClass);e.setStudent(s);e.setStatus(EnrollmentStatus.ACTIVE);persist(e);em.flush();jdbc.update("update class_enrollments set enrolled_at=? where id=?",java.sql.Timestamp.valueOf(year.getStartDate().atStartOfDay()),e.getId());em.refresh(e);}
+    protected void enroll(Student s) {jdbc.update("insert into class_enrollments(class_id,student_id,enrolled_at,status) values (?,?,?,?)",schoolClass.getId(),s.getId(),java.sql.Date.valueOf(year.getStartDate()),EnrollmentStatus.ACTIVE.name());}
 }
