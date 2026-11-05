@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /** Handle database unique-key races without exposing SQL or account data. */
-@RestControllerAdvice(assignableTypes=SchoolAdminAccountController.class)
+@RestControllerAdvice(assignableTypes={SchoolAdminAccountController.class,SchoolAdminSchoolController.class})
 public class SchoolAdminAccountExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> conflict(DataIntegrityViolationException ex) {
