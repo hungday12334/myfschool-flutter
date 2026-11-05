@@ -46,6 +46,8 @@ const stateLabel = {
   CANCELLED: "Đã hủy",
 };
 export function AttendancePage() {
+  const [rosterPage, setRosterPage] = useState(0);
+  const [summaryPage, setSummaryPage] = useState(0);
   const [search, setSearch] = useSearchParams();
   const id = Number(search.get("session")) || null;
   const [classes, setClasses] = useState<ClassInfo[]>([]),
@@ -422,6 +424,7 @@ export function AttendancePage() {
             </small>
           </div>
         )}
+        {home && <div className="teacher-pager"><button disabled={summaryPage === 0} onClick={() => setSummaryPage(summaryPage - 1)}>←</button><span>Trang {summaryPage + 1} / {Math.max(1, Math.ceil(home.students.length / 5))}</span><button disabled={(summaryPage + 1) * 5 >= home.students.length} onClick={() => setSummaryPage(summaryPage + 1)}>→</button></div>}
         {home && (
           <div className="table-scroll">
             <table>
@@ -434,7 +437,7 @@ export function AttendancePage() {
                 </tr>
               </thead>
               <tbody>
-                {home.students.map((s) => (
+                {home.students.slice(summaryPage * 5, summaryPage * 5 + 5).map((s) => (
                   <tr key={s.studentId}>
                     <td>
                       {s.studentCode} · {s.studentName}
@@ -512,6 +515,7 @@ export function AttendancePage() {
           </Button>
         </div>
       </section>
+      {detail && <div className="teacher-pager"><button disabled={rosterPage === 0} onClick={() => setRosterPage(rosterPage - 1)}>←</button><span>Trang {rosterPage + 1} / {Math.max(1, Math.ceil(roster.length / 5))}</span><button disabled={(rosterPage + 1) * 5 >= roster.length} onClick={() => setRosterPage(rosterPage + 1)}>→</button></div>}
       {detail && (
         <section className="info-card">
           <h2>
@@ -545,7 +549,7 @@ export function AttendancePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {roster.map((s) => (
+                  {roster.slice(Math.min(rosterPage, Math.max(0, Math.ceil(roster.length / 5) - 1)) * 5, (Math.min(rosterPage, Math.max(0, Math.ceil(roster.length / 5) - 1)) + 1) * 5).map((s) => (
                     <tr key={s.id}>
                       <td>{s.studentCode}</td>
                       <td>{s.fullName}</td>

@@ -1,10 +1,12 @@
+import { TeacherDashboard } from "../features/teacher/TeacherDashboard";
 import { Link } from "react-router-dom";
 import { ArrowRight, ShieldCheck, BookOpen } from "lucide-react";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import { home, roleNames } from "../features/auth/roles";
 import { Alert } from "../shared/components/ui";
 import { signOut } from "../features/auth/services/auth";
-export function RoleHome({ role }: { role: string }) {
+export function RoleHome({ role }: { role: string }) { return role === "TEACHER" ? <TeacherDashboard /> : <DefaultRoleHome role={role} />; }
+function DefaultRoleHome({ role }: { role: string }) {
   const { user } = useAuth();
   return (
     <>

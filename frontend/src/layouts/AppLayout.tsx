@@ -1,3 +1,4 @@
+import { TeacherLayout } from "../features/teacher/TeacherDashboard";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { LogOut, LayoutDashboard, ChevronRight } from "lucide-react";
 import { Brand, Button } from "../shared/components/ui";
@@ -7,6 +8,7 @@ import { roleHomes, roleNames } from "../features/auth/roles";
 export function AppLayout() {
   const auth = useAuth();
   const navigate = useNavigate();
+  if (auth.user?.roles.includes("TEACHER")) return <TeacherLayout />;
   return (
     <div className="app-shell">
       <aside className="app-sidebar">
