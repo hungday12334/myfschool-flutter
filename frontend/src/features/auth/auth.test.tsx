@@ -71,7 +71,7 @@ describe("Backend-aligned authentication", () => {
     ).toBeInTheDocument();
     act(() => vi.advanceTimersByTime(1001));
     expect(
-      screen.getByRole("heading", { name: "Đăng nhập" }),
+      screen.getByRole("heading", { name: "Chào mừng trở lại" }),
     ).toBeInTheDocument();
     expect(
       screen.getByText("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."),

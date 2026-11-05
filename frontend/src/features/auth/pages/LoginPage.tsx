@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
-import { ArrowRight, LockKeyhole } from "lucide-react";
+import { ArrowRight, LockKeyhole, UserRound } from "lucide-react";
 import { loginSchema } from "../validation";
 import { signIn } from "../services/auth";
 import { session } from "../services/session";
@@ -30,9 +30,8 @@ export function LoginPage() {
   });
   return (
     <>
-      <span className="section-number">01 / CHÀO MỪNG TRỞ LẠI</span>
-      <h2>Đăng nhập</h2>
-      <p className="intro">Ngày học mới bắt đầu từ một kết nối.</p>
+      <h2>Chào mừng trở lại</h2>
+      <p className="intro">Đăng nhập để tiếp tục với myFSchool</p>
       {loc.state?.resetSuccess && (
         <Alert tone="success">
           Mật khẩu đã được đặt lại. Bạn có thể đăng nhập.
@@ -55,28 +54,38 @@ export function LoginPage() {
         })}
         noValidate
       >
-        <Input
-          id="username"
-          label="Tên đăng nhập"
-          placeholder="Tên đăng nhập do nhà trường cấp"
-          autoComplete="username"
-          autoCapitalize="none"
-          spellCheck={false}
-          error={errors.username?.message}
-          {...register("username")}
-        />
-        <PasswordInput
-          id="password"
-          label="Mật khẩu"
-          placeholder="Nhập mật khẩu của bạn"
-          autoComplete="current-password"
-          error={errors.password?.message}
-          {...register("password")}
-        />
+        <div className="fpt-input-icon">
+          <UserRound aria-hidden="true" />
+          <Input
+            id="username"
+            label="Tên đăng nhập"
+            placeholder="Nhập tên đăng nhập"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            error={errors.username?.message}
+            {...register("username")}
+          />
+        </div>
+        <div className="fpt-input-icon">
+          <LockKeyhole aria-hidden="true" />
+          <PasswordInput
+            id="password"
+            label="Mật khẩu"
+            placeholder="Nhập mật khẩu"
+            autoComplete="current-password"
+            error={errors.password?.message}
+            {...register("password")}
+          />
+        </div>
         <div className="form-links">
-          <span>
-            <LockKeyhole size={13} /> Bảo mật tài khoản
-          </span>
+          <label
+            className="fpt-remember"
+            title="Phiên hiện tại chưa hỗ trợ duy trì đăng nhập sau khi tải lại trang."
+          >
+            <input type="checkbox" disabled />
+            Ghi nhớ đăng nhập
+          </label>
           <Link to="/forgot-password">Quên mật khẩu?</Link>
         </div>
         <Button type="submit" loading={isSubmitting}>
@@ -84,11 +93,7 @@ export function LoginPage() {
           {!isSubmitting && <ArrowRight size={18} />}
         </Button>
       </form>
-      <div className="form-note">
-        Sử dụng tài khoản được nhà trường cung cấp.
-        <br />
-        Liên hệ quản trị viên nếu bạn chưa có tài khoản.
-      </div>
+      <div className="form-note">Sử dụng tài khoản do nhà trường cung cấp.</div>
     </>
   );
 }

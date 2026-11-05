@@ -3,6 +3,7 @@ import { Guest, Protected } from "../features/auth/components/RouteGuards";
 import { home, roleHomes } from "../features/auth/roles";
 import { useAuth } from "../features/auth/hooks/useAuth";
 import { AuthLayout } from "../layouts/AuthLayout";
+import { LoginLayout } from "../layouts/LoginLayout";
 import { AppLayout } from "../layouts/AppLayout";
 import { LoginPage } from "../features/auth/pages/LoginPage";
 import { ForgotPasswordPage } from "../features/auth/pages/ForgotPasswordPage";
@@ -23,8 +24,10 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<Index />} />
       <Route element={<Guest />}>
-        <Route element={<AuthLayout />}>
+        <Route element={<LoginLayout />}>
           <Route path="/login" element={<LoginPage />} />
+        </Route>
+        <Route element={<AuthLayout />}>
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
