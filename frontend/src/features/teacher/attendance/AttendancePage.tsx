@@ -46,6 +46,9 @@ const stateLabel = {
   CANCELLED: "Đã hủy",
 };
 export function AttendancePage() {
+  const [view, setView] = useState<"session" | "create" | "history" | "summary">("session");
+  const [studentQuery, setStudentQuery] = useState("");
+  const [chosenSession, setChosenSession] = useState("");
   const [rosterPage, setRosterPage] = useState(0);
   const [summaryPage, setSummaryPage] = useState(0);
   const [search, setSearch] = useSearchParams();
@@ -108,7 +111,7 @@ export function AttendancePage() {
       .history({
         ...Object.fromEntries(Object.entries(filter).filter(([, v]) => v)),
         page,
-        size: 20,
+        size: 5,
       })
       .then((v) => {
         if (live) setHistory(v);
@@ -125,7 +128,7 @@ export function AttendancePage() {
   }, [filter, page, version]);
   useEffect(() => {
     let live = true;
-    queueMicrotask(() => { if(live){setDetail(null);setStudents([]);setDraft({});setConfirm(null);} });
+    queueMicrotask(() => { if(live){setDetail(null);setStudents([]);setDraft({});setConfirm(null);setRosterPage(0);} });
     if (!id) return;
     queueMicrotask(() => { if(live) setLoading(true); });
     (async () => {
@@ -173,7 +176,7 @@ export function AttendancePage() {
     }
   }
   const dates = { from: filter.from || undefined, to: filter.to || undefined };
-  const roster = [
+  const allStudents = [
     ...students,
     ...(detail?.records
       .filter((r) => !students.some((s) => s.id === r.studentId))
@@ -183,10 +186,11 @@ export function AttendancePage() {
         fullName: r.studentName,
       })) || []),
   ];
+  const roster = allStudents.filter(s => `${s.fullName} ${s.studentCode}`.toLocaleLowerCase('vi').includes(studentQuery.toLocaleLowerCase('vi')));
   async function save() {
     if (!detail) return;
     const existing = new Map(detail.records.map((r) => [r.studentId, r]));
-    const newRows = roster
+    const newRows = allStudents
       .filter((s) => !existing.has(s.id) && draft[s.id]?.status)
       .map((s) => ({
         studentId: s.id,
@@ -205,9 +209,10 @@ export function AttendancePage() {
   }
   return (
     <div className="attendance">
-      <div className="workspace-kicker">GIÁO VIÊN / CHUYÊN CẦN</div>
-      <h1>Điểm danh học sinh</h1>
-      <p>Theo dõi buổi học, ghi nhận chuyên cần và xem lịch sử của lớp.</p>
+      <div className="attendance-top"><div><h1>Điểm danh học sinh</h1><p>Quản lý phiên điểm danh và theo dõi chuyên cần của lớp.</p></div><Button onClick={() => {setSearch({});setView("create");}}>＋ Tạo phiên</Button></div>
+      <nav className="attendance-tabs" aria-label="Điểm danh">
+        {([['session','Phiên điểm danh'],['history','Lịch sử'],['summary','Thống kê chuyên cần']] as const).map(([tab,label]) => <button key={tab} className={(id ? 'session' : view) === tab ? 'active' : ''} disabled={busy} onClick={() => {setSearch({});setView(tab);setNotice('');}}>{label}</button>)}
+      </nav>
       {error && (
         <Alert>
           {error} Nếu thao tác lưu bị gián đoạn, hãy tải lại phiên để kiểm tra
@@ -215,7 +220,7 @@ export function AttendancePage() {
         </Alert>
       )}
       {notice && <Alert tone="success">{notice}</Alert>}
-      <section className="info-card">
+      {!id && view === "create" && <section className="info-card">
         <h2>Mở buổi điểm danh</h2>
         <form
           className="attendance-form"
@@ -305,8 +310,8 @@ export function AttendancePage() {
         {Object.entries(form.formState.errors).map(([k, e]) => (
           <Alert key={k}>{e.message}</Alert>
         ))}
-      </section>
-      <section className="info-card">
+      </section>}
+      {!id && (view === "history" || view === "summary") && <section className="info-card">
         <h2>Lịch sử và thống kê</h2>
         <div className="attendance-form">
           <label>
@@ -384,6 +389,7 @@ export function AttendancePage() {
             onClick={() =>
               void action(async () => {
                 setSummary(await api.summary(Number(filter.classId), dates));
+                setView("summary"); setSummaryPage(0);
                 setHome(null);
               }, "Đã tải thống kê lớp.")
             }
@@ -399,7 +405,7 @@ export function AttendancePage() {
                     Number(filter.classId),
                     dates,
                   );
-                  setHome(result);
+                  setHome(result); setView("summary"); setSummaryPage(0);
                   setSummary(result.summary);
                 }, "Đã tải chuyên cần chủ nhiệm.")
               }
@@ -408,7 +414,7 @@ export function AttendancePage() {
             </Button>
           )}
         </div>
-        {summary && (
+        {view === "summary" && summary && (
           <div className="attendance-stats">
             <strong>
               {summary.totalSessions} buổi · {summary.totalRecords} lượt đã ghi
@@ -451,6 +457,7 @@ export function AttendancePage() {
             </table>
           </div>
         )}
+        {view === "history" && <>
         {loading && <p role="status">Đang tải dữ liệu…</p>}
         <div className="table-scroll">
           <table>
@@ -514,8 +521,10 @@ export function AttendancePage() {
             Sau
           </Button>
         </div>
-      </section>
-      {detail && <div className="teacher-pager"><button disabled={rosterPage === 0} onClick={() => setRosterPage(rosterPage - 1)}>←</button><span>Trang {rosterPage + 1} / {Math.max(1, Math.ceil(roster.length / 5))}</span><button disabled={(rosterPage + 1) * 5 >= roster.length} onClick={() => setRosterPage(rosterPage + 1)}>→</button></div>}
+        </>}
+      </section>}
+      {id && loading && <p role="status">?ang t?i phi?n ?i?m danh?</p>}
+      {!id && view === "session" && <section className="info-card attendance-picker"><h2>Phiên điểm danh</h2><div className="attendance-form"><label>Chọn phiên<select value={chosenSession} onChange={e => setChosenSession(e.target.value)}><option value="">Chọn phiên điểm danh</option>{history?.content.map(s => <option key={s.id} value={s.id}>{s.className} · {s.subjectName || "Chủ nhiệm"} · {s.sessionDate}</option>)}</select></label><Button disabled={!chosenSession} onClick={() => setSearch({session:chosenSession})}>Xem phiên</Button><Button className="secondary" onClick={() => {setView("history");}}>Xem tất cả phiên</Button></div><p>Chọn phiên để xem chi tiết hoặc tạo phiên điểm danh mới.</p></section>}
       {detail && (
         <section className="info-card">
           <h2>
@@ -537,6 +546,9 @@ export function AttendancePage() {
             Chọn trạng thái rõ ràng cho từng học sinh. Học sinh chưa chọn sẽ giữ
             trạng thái chưa điểm danh.
           </p>
+          <div className="attendance-session-stats">{[['Sĩ số',allStudents.length],['Có mặt',allStudents.filter(s => draft[s.id]?.status === 'PRESENT').length],['Vắng',allStudents.filter(s => ['ABSENT','EXCUSED'].includes(draft[s.id]?.status || '')).length],['Đi muộn',allStudents.filter(s => draft[s.id]?.status === 'LATE').length]].map(([label,n]) => <div key={label}><span>{label}</span><strong>{n}</strong></div>)}</div>
+          <div className="attendance-roster-toolbar"><h2>Danh sách học sinh</h2><span>Đã ghi nhận {allStudents.filter(s => draft[s.id]?.status).length}/{allStudents.length} học sinh</span><input aria-label="Tìm học sinh" placeholder="Tìm tên hoặc mã học sinh" value={studentQuery} onChange={e => {setStudentQuery(e.target.value);setRosterPage(0);}}/><Button className="secondary" disabled={busy || detail.session.status !== 'OPEN'} onClick={() => setDraft(previous => Object.fromEntries(allStudents.map(s => [s.id,{status:'PRESENT' as Status,note:previous[s.id]?.note || ''}])))}>Đánh dấu tất cả có mặt</Button></div>
+          {detail && <div className="teacher-pager"><button disabled={rosterPage === 0} onClick={() => setRosterPage(rosterPage - 1)}>←</button><span>Trang {rosterPage + 1} / {Math.max(1, Math.ceil(roster.length / 5))}</span><button disabled={(rosterPage + 1) * 5 >= roster.length} onClick={() => setRosterPage(rosterPage + 1)}>→</button></div>}
           <fieldset disabled={busy || detail.session.status !== "OPEN"}>
             <div className="table-scroll">
               <table>
@@ -556,6 +568,7 @@ export function AttendancePage() {
                       <td>
                         <select
                           aria-label={`Trạng thái ${s.fullName}`}
+                          className={"attendance-status " + (draft[s.id]?.status || "")}
                           value={draft[s.id]?.status || ""}
                           onChange={(e) =>
                             setDraft({
@@ -604,6 +617,7 @@ export function AttendancePage() {
               </table>
             </div>
             <div className="attendance-actions">
+              <Button className="secondary" disabled={busy} onClick={() => {const values: typeof draft = {};for(const r of detail.records) values[r.studentId]={status:r.status,note:r.note || ""};setDraft(values);}}>Hủy thay đổi</Button>
               <Button loading={busy} onClick={() => void save()}>
                 Lưu điểm danh
               </Button>
@@ -623,7 +637,7 @@ export function AttendancePage() {
           </fieldset>
           {roster.length === 0 && <p>Không có học sinh trong danh sách.</p>}
           {confirm && (
-            <div className="alert info" role="alert">
+            <div className="attendance-confirm-overlay"><div className="alert info" role="alertdialog" aria-modal="true" aria-label="X?c nh?n tr?ng th?i bu?i">
               <p>
                 {confirm === "COMPLETED" ? "Hoàn tất" : "Hủy"} phiên? Thay đổi
                 chưa lưu sẽ không được lưu tự động. Sau thao tác này không thể
@@ -649,7 +663,7 @@ export function AttendancePage() {
                   Quay lại
                 </Button>
               </div>
-            </div>
+            </div></div>
           )}
         </section>
       )}

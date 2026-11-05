@@ -1,0 +1,695 @@
+.teacher-main:has(.teacher-classes-page) {
+  overflow: hidden;
+  background: radial-gradient(ellipse at top right, #f2f5fc 0, #f7f8fc 75%);
+}
+
+.teacher-breadcrumb {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.teacher-breadcrumb a,
+.teacher-breadcrumb strong {
+  color: #11121b;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.teacher-breadcrumb a:hover {
+  color: #f56b0b;
+}
+
+.teacher-classes-page {
+  --class-orange: #ff6c08;
+  --class-border: #dce1ec;
+  --class-muted: #646b80;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  color: #11131d;
+}
+
+.class-page-heading {
+  flex-shrink: 0;
+  padding: 0 5px;
+}
+
+.class-page-heading h1 {
+  font-size: clamp(25px, 2.4vw, 32px);
+  line-height: 1.3;
+  letter-spacing: -0.9px;
+  font-weight: 700;
+  margin: 0 0 5px;
+}
+
+.class-page-heading p,
+.class-students-heading p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--class-muted);
+}
+
+.class-filters {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.9fr 0.95fr;
+  gap: 12px;
+  flex-shrink: 0;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.class-search,
+.class-select {
+  position: relative;
+  min-width: 0;
+}
+
+.class-search > svg,
+.class-select > svg {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #202432;
+}
+
+.class-search > svg {
+  left: 11px;
+}
+.class-select > svg {
+  right: 12px;
+}
+
+.class-search input,
+.class-select select {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  background: #fff;
+  border: 1px solid #c8cedd;
+  border-radius: 7px;
+  color: inherit;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 13px;
+  box-shadow: 0 1px 2px #101a3510;
+}
+
+.class-search input {
+  padding-left: 36px;
+}
+
+.class-search input::placeholder {
+  color: #71788b;
+  opacity: 1;
+}
+
+.class-select select {
+  appearance: none;
+  padding-right: 34px;
+  cursor: pointer;
+}
+
+.teacher-classes-page :is(input, select, a, button):focus-visible {
+  outline: 2px solid var(--class-orange);
+  outline-offset: 3px;
+}
+
+.class-result-count {
+  flex-shrink: 0;
+  margin: -2px 5px -3px;
+  color: var(--class-muted);
+}
+
+.class-list-card,
+.class-students-card,
+.class-overview {
+  background: #fff;
+  border: 1px solid var(--class-border);
+  border-radius: 13px;
+  box-shadow: 0 3px 10px #29324703;
+}
+
+.class-list-card {
+  padding: 15px 16px 0;
+  min-height: 0;
+  flex-shrink: 1;
+}
+
+.class-table-wrap {
+  width: 100%;
+  min-height: 0;
+  overflow-x: auto;
+}
+
+.teacher-classes-page table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  text-align: left;
+}
+
+.teacher-classes-page th {
+  padding: 11px 14px;
+  background: #fff0e5;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.teacher-classes-page th:first-child {
+  border-radius: 9px 0 0 9px;
+}
+.teacher-classes-page th:last-child {
+  border-radius: 0 9px 9px 0;
+}
+
+.teacher-classes-page td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e6ef;
+  vertical-align: middle;
+}
+
+.class-list-table th:first-child {
+  width: 25%;
+}
+.class-list-table th:nth-child(2) {
+  width: 22%;
+}
+.class-list-table th:nth-child(3) {
+  width: 17%;
+}
+.class-list-table th:nth-child(4) {
+  width: 16%;
+}
+.class-list-table td:last-child,
+.class-list-table td:nth-child(4) {
+  white-space: nowrap;
+}
+.class-list-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.class-assigned-row {
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.class-assigned-row:hover,
+.class-assigned-row:focus-within {
+  background: #fff4ea;
+}
+
+.class-assigned-row td:first-child {
+  border-radius: 10px 0 0 10px;
+}
+.class-assigned-row td:last-child {
+  border-radius: 0 10px 10px 0;
+}
+
+.class-name-cell {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.class-symbol {
+  width: 46px;
+  height: 46px;
+  background: #fff2e7;
+  border-radius: 11px;
+  color: var(--class-orange);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.class-symbol svg {
+  stroke-width: 1.6;
+}
+
+.class-name-link {
+  color: #151722;
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.class-name-cell small {
+  display: block;
+  margin-top: 3px;
+  color: var(--class-muted);
+  font-size: 12px;
+}
+
+.class-role {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 11px;
+  background: #eceef4;
+  color: #252939;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.class-role.homeroom {
+  background: #ffe5d1;
+  color: #ac490a;
+}
+
+.class-students-link,
+.class-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--class-orange);
+  text-decoration: none;
+}
+
+.class-students-link:hover,
+.class-back-link:hover {
+  color: #cb5000;
+}
+
+.class-list-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: #747e96;
+  font-style: italic;
+  font-size: 12px;
+  margin: 0 5px;
+}
+
+.class-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  color: var(--class-muted);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.class-pagination > div,
+.class-page-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.class-pagination button {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  padding: 0;
+  border: 1px solid #d5dbea;
+  border-radius: 7px;
+  background: #fff;
+  color: #151824;
+  font: inherit;
+  cursor: pointer;
+}
+
+.class-pagination button[aria-current="page"] {
+  color: #fff;
+  background: var(--class-orange);
+  border-color: var(--class-orange);
+  box-shadow: 0 2px 5px #ff71032b;
+}
+
+.class-pagination > div > button {
+  border-color: transparent;
+  background: transparent;
+}
+
+.class-pagination button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.class-pagination button:not(:disabled):not([aria-current]):hover {
+  background: #fff1e5;
+}
+.class-page-ellipsis {
+  padding: 0 5px;
+}
+
+.class-back-link {
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.class-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.class-detail-title h1 {
+  margin: 0;
+}
+.class-detail-title .class-role {
+  border-radius: 20px;
+  padding-inline: 13px;
+}
+
+.class-overview {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr 1.1fr;
+  flex-shrink: 0;
+  padding: 17px 0;
+}
+
+.class-overview > div {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 0 20px;
+  min-width: 0;
+}
+
+.class-overview > div + div {
+  border-left: 1px solid #dce1ec;
+}
+.class-overview > div > div {
+  min-width: 0;
+}
+.class-overview > div > div > span {
+  color: var(--class-muted);
+  font-size: 12px;
+}
+.class-overview strong {
+  display: block;
+  margin-top: 5px;
+  line-height: 1.4;
+  font-size: 16px;
+}
+
+.class-students-card {
+  padding: 18px 16px 0;
+  min-height: 0;
+}
+
+.class-students-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.class-students-heading h2 {
+  font-size: 21px;
+  line-height: 1.4;
+  font-weight: 700;
+  margin: 0 0 2px;
+  letter-spacing: -0.4px;
+}
+
+.class-students-heading .class-search {
+  width: 290px;
+  max-width: 48%;
+}
+.class-students-heading p {
+  font-size: 13px;
+}
+.class-students-table th:first-child {
+  width: 8%;
+}
+.class-students-table th:nth-child(2) {
+  width: 17%;
+}
+.class-students-table th:nth-child(3) {
+  width: 40%;
+}
+.class-students-table th:nth-child(4) {
+  width: 20%;
+}
+.class-students-table td {
+  padding-block: 9px;
+}
+.class-students-table td:first-child {
+  text-align: center;
+}
+.class-students-table td:nth-child(4) {
+  white-space: nowrap;
+}
+.class-students-table tbody tr:hover {
+  background: #fafbfe;
+}
+.class-students-table strong {
+  font-weight: 600;
+}
+
+.class-student-name {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.class-student-avatar {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: #3d4559;
+  background: linear-gradient(145deg, #f3f4f8, #e4e7ef);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.class-page-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--class-muted);
+  padding: 35px 20px;
+  text-align: center;
+}
+
+.class-page-state > svg {
+  color: #f57b29;
+}
+.class-page-state p {
+  margin: 0;
+}
+.class-retry {
+  background: #fff1e6;
+  border: 1px solid #ffd3b3;
+  padding: 8px 20px;
+  border-radius: 7px;
+  color: #bd5008;
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-height: 800px) and (min-width: 701px) {
+  .teacher-classes-page {
+    gap: 14px;
+  }
+  .class-page-heading h1 {
+    font-size: 27px;
+  }
+  .class-back-link {
+    margin-bottom: 12px;
+  }
+  .class-overview {
+    padding-block: 14px;
+  }
+  .class-students-card {
+    padding-top: 15px;
+  }
+  .class-students-heading {
+    margin-bottom: 16px;
+  }
+  .class-students-heading h2 {
+    font-size: 20px;
+  }
+  .class-students-table td {
+    padding-block: 7px;
+  }
+  .class-pagination {
+    padding-block: 10px;
+  }
+}
+
+@media (max-height: 700px) and (min-width: 701px) {
+  .teacher-classes-page {
+    gap: 10px;
+  }
+  .class-page-heading h1 {
+    font-size: 24px;
+  }
+  .class-page-heading p {
+    font-size: 12px;
+  }
+  .class-back-link {
+    margin-bottom: 9px;
+  }
+  .class-overview {
+    padding-block: 11px;
+  }
+  .class-overview .class-symbol {
+    width: 36px;
+    height: 36px;
+  }
+  .class-overview strong {
+    font-size: 14px;
+    margin-top: 3px;
+  }
+  .class-students-heading {
+    margin-bottom: 12px;
+  }
+  .class-students-card {
+    padding-top: 12px;
+  }
+  .class-students-table td {
+    padding-block: 5px;
+  }
+  .class-student-avatar {
+    width: 26px;
+    height: 26px;
+  }
+  .teacher-classes-page th {
+    padding-block: 8px;
+  }
+  .class-pagination {
+    padding-block: 8px;
+  }
+  .class-pagination button {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 1100px) {
+  .class-overview > div {
+    gap: 10px;
+    padding-inline: 15px;
+  }
+  .class-overview strong {
+    font-size: 14px;
+  }
+  .class-name-cell {
+    gap: 10px;
+  }
+  .class-list-table th,
+  .class-list-table td {
+    padding-inline: 10px;
+  }
+  .class-filters {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 850px) {
+  .teacher-classes-page table {
+    font-size: 12px;
+  }
+  .class-overview > div {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+  .class-overview .class-symbol {
+    width: 34px;
+    height: 38px;
+  }
+  .class-filters {
+    grid-template-columns: 1.25fr 1fr 1fr 1fr;
+    gap: 8px;
+  }
+  .class-search input,
+  .class-select select {
+    font-size: 11px;
+  }
+  .class-list-table .class-symbol {
+    display: none;
+  }
+  .class-name-link {
+    font-size: 16px;
+  }
+  .class-students-table th,
+  .class-students-table td {
+    padding-inline: 9px;
+  }
+}
+
+@media (max-width: 700px) {
+  .teacher-main:has(.teacher-classes-page) {
+    overflow: auto;
+  }
+  .teacher-classes-page {
+    height: auto;
+    gap: 15px;
+  }
+  .class-page-heading h1 {
+    font-size: 24px;
+  }
+  .class-page-heading p {
+    font-size: 12px;
+  }
+  .class-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+  .class-search input,
+  .class-select select {
+    font-size: 12px;
+  }
+  .class-list-table {
+    min-width: 620px;
+  }
+  .class-students-table {
+    min-width: 600px;
+  }
+  .class-list-card,
+  .class-students-card {
+    padding-inline: 12px;
+  }
+  .class-list-table .class-symbol {
+    display: grid;
+  }
+  .class-overview {
+    grid-template-columns: 1fr;
+    padding: 0 14px;
+  }
+  .class-overview > div {
+    padding: 12px 0;
+    gap: 15px;
+  }
+  .class-overview > div + div {
+    border-left: 0;
+    border-top: 1px solid #e1e5ed;
+  }
+  .class-students-heading {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .class-students-heading .class-search {
+    width: 100%;
+    max-width: 100%;
+  }
+  .class-pagination {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .class-pagination > div {
+    margin-left: auto;
+  }
+  .class-detail-title {
+    gap: 10px;
+  }
+}

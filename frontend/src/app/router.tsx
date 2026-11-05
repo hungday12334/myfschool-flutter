@@ -11,6 +11,7 @@ import { ResetPasswordPage } from "../features/auth/pages/ResetPasswordPage";
 import { RoleHome, StatusPage } from "./pages";
 import { Loading } from "../shared/components/ui";
 import { AttendancePage } from "../features/teacher/attendance/AttendancePage";
+import { TeacherClassesPage } from "../features/teacher/classes/TeacherClassesPage";
 function Index() {
   const auth = useAuth();
   return auth.status === "restoring" ? (
@@ -29,7 +30,6 @@ export function AppRoutes() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Route>
         <Route element={<AuthLayout />}>
-
           <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
       </Route>
@@ -38,7 +38,16 @@ export function AppRoutes() {
           <Route element={<AppLayout />}>
             <Route path={path} element={<RoleHome role={role} />} />
             {role === "TEACHER" && (
-              <Route path="/teacher/attendance" element={<AttendancePage />} />
+              <>
+                <Route
+                  path="/teacher/attendance"
+                  element={<AttendancePage />}
+                />
+                <Route
+                  path="/teacher/classes/:classId?"
+                  element={<TeacherClassesPage />}
+                />
+              </>
             )}
           </Route>
         </Route>
