@@ -1510,3 +1510,7 @@ h2 {
     margin-top: 18px;
   }
 }
+.fpt-remember, .fpt-remember input { cursor: pointer; }
+.fpt-remember input:checked { background: #f37022; border-color: #f37022; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 12 4 4 10-10' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E"); }
+.fpt-remember input:focus-visible { outline: 2px solid #f37022; outline-offset: 3px; }
+.fpt-login-form .back-link { color: #ef6909; }

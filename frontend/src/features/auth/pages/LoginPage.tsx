@@ -79,11 +79,8 @@ export function LoginPage() {
           />
         </div>
         <div className="form-links">
-          <label
-            className="fpt-remember"
-            title="Phiên hiện tại chưa hỗ trợ duy trì đăng nhập sau khi tải lại trang."
-          >
-            <input type="checkbox" disabled />
+          <label className="fpt-remember">
+            <input type="checkbox" />
             Ghi nhớ đăng nhập
           </label>
           <Link to="/forgot-password">Quên mật khẩu?</Link>

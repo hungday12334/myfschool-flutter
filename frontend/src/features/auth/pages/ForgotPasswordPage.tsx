@@ -54,9 +54,6 @@ export function ForgotPasswordPage() {
       <Link className="back-link" to="/login">
         <ArrowLeft size={16} /> Quay lại đăng nhập
       </Link>
-      <div className="page-icon">
-        <Mail />
-      </div>
       <h2>{sent ? "Kiểm tra hộp thư" : "Quên mật khẩu?"}</h2>
       <p className="intro">
         {sent
@@ -91,6 +88,7 @@ export function ForgotPasswordPage() {
             void handleSubmit((v) => send(v.email))(event);
           }}
         >
+          <div className="fpt-input-icon"><Mail aria-hidden="true" />
           <Input
             id="email"
             label="Email"
@@ -100,6 +98,7 @@ export function ForgotPasswordPage() {
             error={errors.email?.message}
             {...register("email")}
           />
+          </div>
           <Button type="submit" loading={isSubmitting} disabled={wait > 0}>
             {wait > 0 ? `Thử lại sau ${wait}s` : "Gửi mã xác minh"}
           </Button>
