@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/v1/auth/login",
                                 "/api/v1/auth/password-reset/request",
@@ -55,8 +56,7 @@ public class SecurityConfig {
                                 "/api/v1/parents/me/tuition"
                         ).hasRole("PARENT")
                         .requestMatchers("/api/parent/**").hasRole("PARENT")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/teacher/**").hasRole("TEACHER")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/teacher/**").hasRole("TEACHER")
+                        .requestMatchers("/api/teacher/**", "/api/v1/teacher/**").hasRole("TEACHER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/principal/**").hasRole("PRINCIPAL")
                         .requestMatchers(HttpMethod.GET, "/api/v1/principal/**").hasRole("PRINCIPAL")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/principal/**").hasRole("PRINCIPAL")

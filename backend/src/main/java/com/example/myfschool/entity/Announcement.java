@@ -25,9 +25,9 @@ public class Announcement extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name="status", nullable=false)
     private AnnouncementStatus status;
-    @Column(name="published_at", insertable=false, updatable=false)
+    @Column(name="published_at")
     private java.time.LocalDateTime publishedAt;
-    @Column(name="expires_at", insertable=false, updatable=false)
+    @Column(name="expires_at")
     private java.time.LocalDateTime expiresAt;
     @Column(name="created_at", nullable=false, insertable=false, updatable=false)
     private java.time.LocalDateTime createdAt;

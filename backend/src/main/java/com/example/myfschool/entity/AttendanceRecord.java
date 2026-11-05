@@ -26,7 +26,7 @@ public class AttendanceRecord extends BaseEntity {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="marked_by")
     private User markedBy;
-    @Column(name="marked_at", nullable=false, insertable=false, updatable=false)
+    @Column(name="marked_at", nullable=false)
     private java.time.LocalDateTime markedAt;
     @Column(name="created_at", nullable=false, insertable=false, updatable=false)
     private java.time.LocalDateTime createdAt;

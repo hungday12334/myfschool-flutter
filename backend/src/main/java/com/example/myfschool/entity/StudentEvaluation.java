@@ -30,7 +30,7 @@ public class StudentEvaluation extends BaseEntity {
     private String conductResult;
     @Column(name="overall_comment", columnDefinition="TEXT")
     private String overallComment;
-    @Column(name="evaluated_at", insertable=false, updatable=false)
+    @Column(name="evaluated_at")
     private java.time.LocalDateTime evaluatedAt;
     @Column(name="created_at", nullable=false, insertable=false, updatable=false)
     private java.time.LocalDateTime createdAt;

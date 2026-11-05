@@ -25,7 +25,7 @@ public class StudentGrade extends BaseEntity {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="graded_by")
     private User gradedBy;
-    @Column(name="graded_at", insertable=false, updatable=false)
+    @Column(name="graded_at")
     private java.time.LocalDateTime gradedAt;
     @Column(name="created_at", nullable=false, insertable=false, updatable=false)
     private java.time.LocalDateTime createdAt;

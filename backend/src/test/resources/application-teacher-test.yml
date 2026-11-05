@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:teacher-test;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:teacher-schema.sql
+  config:
+    import: ''
+app:
+  jwt:
+    secret: dGVzdC1vbmx5LWtleS1mb3ItdGVhY2hlci1pbnRlZ3JhdGlvbi10ZXN0cw==
+    issuer: myfschool-test
+    expiration-seconds: 3600

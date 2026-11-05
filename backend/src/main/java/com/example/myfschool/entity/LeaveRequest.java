@@ -36,7 +36,7 @@ public class LeaveRequest extends BaseEntity {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="reviewed_by")
     private User reviewedBy;
-    @Column(name="reviewed_at", insertable=false, updatable=false)
+    @Column(name="reviewed_at")
     private java.time.LocalDateTime reviewedAt;
     @Column(name="review_note", columnDefinition="TEXT")
     private String reviewNote;

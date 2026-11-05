@@ -1,19 +1,20 @@
 package com.example.myfschool.service;
 
-import com.example.myfschool.dto.request.AttendanceMarkRequest;
-import com.example.myfschool.dto.request.CreateTeacherClassAssignmentRequest;
-import com.example.myfschool.dto.response.*;
+import com.example.myfschool.dto.teacher.TeacherContextDtos.*;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface TeacherService {
-    UserResponse getProfile(Long teacherId);
-    List<TeacherScheduleLessonResponse> getSchedule(Long teacherId, LocalDate weekDate);
-    List<TeacherClassResponse> getClasses(Long teacherId);
-    List<TeacherStudentResponse> getStudents(Long teacherId, Long assignmentId, String search);
-    TeacherStudentResponse getStudent(Long teacherId, Long assignmentId, Long studentId);
-    List<TeacherAttendanceResponse> getAttendance(Long teacherId, Long assignmentId, LocalDate date);
-    List<TeacherAttendanceResponse> saveAttendance(Long teacherId, Long assignmentId, LocalDate date,
-                                                   List<AttendanceMarkRequest> marks);
-    TeacherClassResponse assignClass(CreateTeacherClassAssignmentRequest request);
+    Profile profile(Long userId);
+    Dashboard dashboard(Long userId,Long academicYearId);
+    List<ClassInfo> classes(Long userId,Long academicYearId);
+    Page<StudentInfo> students(Long userId,Long classId,String keyword,int page,int size);
+    StudentInfo student(Long userId,Long studentId);
+    List<Lesson> timetable(Long userId,Long academicYearId,Long semesterId,LocalDate date);
+    List<Assignment> subjects(Long userId,Long academicYearId,Long semesterId);
+    List<Period> periods(Long userId);
+    List<ClassInfo> homeroom(Long userId,Long academicYearId);
+    List<ParentContact> parents(Long userId,Long studentId);
+    Activity activities(Long userId,LocalDate from,LocalDate to);
 }
